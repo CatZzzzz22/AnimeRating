@@ -18,7 +18,7 @@ FIELDS TERMINATED BY ','
 ENCLOSED BY '"' 
 LINES TERMINATED BY '\n'
 IGNORE 1 LINES
-(uid, uname, gender, age, joinedDate);
+(uid, username, password, uname, gender, age, joinedDate);
 
 -- Load Ratings
 LOAD DATA LOCAL INFILE '../data/sample_ratings.csv'

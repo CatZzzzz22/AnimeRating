@@ -22,6 +22,8 @@ CREATE TABLE Anime (
 -- Create User table
 CREATE TABLE User (
   uid INT AUTO_INCREMENT PRIMARY KEY,
+  username VARCHAR(255) NOT NULL UNIQUE,
+  password VARCHAR(255) NOT NULL,
   uname VARCHAR(255),
   gender VARCHAR(10),
   age INT,
