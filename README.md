@@ -7,7 +7,7 @@ To set up the data set, first you need to install MySQL.
 - on MacOS:
   - brew update
   - brew install mysql
-  - if you never installed brew, run: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  - if you never installed brew, run: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)
 - on Windows:
 
 Then:
