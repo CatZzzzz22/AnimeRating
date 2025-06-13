@@ -42,7 +42,9 @@ Run the following commands in the terminal:
 
   => input your password[1] and then you'll get into MySQL
 - USE AnimeRatingApp;
+
 Now you can test your SQL commands.
+
 If you want to exit MySQL, simply input "exit".
 
 [1] The username and password are typically set during the installation of MySQL. If you didn't change the username, it's typically "root" by default.
