@@ -1,6 +1,8 @@
 CREATE DATABASE IF NOT EXISTS AnimeRatingApp;
 USE AnimeRatingApp;
 
+DROP TABLE IF EXISTS AnimeGenre;
+DROP TABLE IF EXISTS Genre;
 DROP TABLE IF EXISTS Watchlist;
 DROP TABLE IF EXISTS Rating;
 DROP TABLE IF EXISTS User;
@@ -9,7 +11,7 @@ DROP TABLE IF EXISTS Anime;
 -- Create Anime table
 CREATE TABLE Anime (
   aid INT AUTO_INCREMENT PRIMARY KEY,
-  name VARCHAR(255) NOT NULL,
+  aname VARCHAR(255) NOT NULL,
   score FLOAT NOT NULL,
   synopsis TEXT,
   genres VARCHAR(255),
@@ -17,6 +19,20 @@ CREATE TABLE Anime (
   episodes INT,
   aired VARCHAR(100),
   imageURL VARCHAR(255)
+);
+
+-- Create Genre table
+CREATE TABLE Genre (
+  gid INT AUTO_INCREMENT PRIMARY KEY,
+  gname VARCHAR(255) NOT NULL
+);
+
+-- Create AnimeGenre table
+CREATE TABLE AnimeGenre (
+  aid INT,
+  gid INT,
+  FOREIGN KEY (aid) REFERENCES Anime(aid),
+  FOREIGN KEY (gid) REFERENCES Genre(gid)
 );
  
 -- Create User table
