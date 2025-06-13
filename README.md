@@ -1,4 +1,9 @@
 # AnimeRating
+### Technical Requirements
+- Node.js (latest stable) and NPM
+  - Install Node.js: https://nodejs.org
+- MySQL Community Server
+
 ## Set Up Data Set
 To set up the data set, first you need to install MySQL. Follow the steps to install MySQL:
 - a. For Mac users: run the commands in the terminal
@@ -54,6 +59,11 @@ If you want to exit MySQL, simply input "exit".
 - Filter anime based on name, genres or type.
 - Sort anime based on rating or release date
 - Users can create their watchlist
+
+## To Start The Server
+Run the commands in the terminal:
+- cd weebseek
+- npm start
 
 ## Contributors
 - Tracy Hua
