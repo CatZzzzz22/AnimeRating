@@ -11,7 +11,7 @@ To set up the data set, first you need to install MySQL.
 
 Then:
 - chmod +x setup_dataset.sh
-- ./setup_mysql_dataset.sh
+- ./setup_dataset.sh
 
 Enter your username and password in the prompt (the username and password are typically set during installation of MySQL. If you didn't change the username, it's typically "root" by default).
 
