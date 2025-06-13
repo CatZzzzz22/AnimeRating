@@ -1,0 +1,49 @@
+CREATE DATABASE IF NOT EXISTS AnimeRatingApp;
+USE AnimeRatingApp;
+
+DROP TABLE IF EXISTS Watchlist;
+DROP TABLE IF EXISTS Rating;
+DROP TABLE IF EXISTS User;
+DROP TABLE IF EXISTS Anime;
+
+-- Create Anime table
+CREATE TABLE Anime (
+  aid INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  score FLOAT NOT NULL,
+  synopsis TEXT,
+  genres VARCHAR(255),
+  type ENUM('TV', 'Movie', 'OVA', 'ONA', 'Special', 'Music', 'Unknown') NOT NULL,
+  episodes INT,
+  aired VARCHAR(100),
+  imageURL VARCHAR(255)
+);
+ 
+-- Create User table
+CREATE TABLE User (
+  uid INT AUTO_INCREMENT PRIMARY KEY,
+  uname VARCHAR(255),
+  gender VARCHAR(10),
+  age INT,
+  joinedDate DATE
+);
+
+-- Create Rating table
+CREATE TABLE Rating (
+  uid INT,
+  aid INT,
+  ratedDate DATE,
+  score FLOAT,
+  PRIMARY KEY (uid, aid),
+  FOREIGN KEY (uid) REFERENCES User(uid) ON DELETE CASCADE,
+  FOREIGN KEY (aid) REFERENCES Anime(aid) ON DELETE CASCADE
+);
+
+-- Create Watchlist table
+CREATE TABLE Watchlist (
+  uid INT,
+  aid INT,
+  PRIMARY KEY (uid, aid),
+  FOREIGN KEY (uid) REFERENCES User(uid) ON DELETE CASCADE,
+  FOREIGN KEY (aid) REFERENCES Anime(aid) ON DELETE CASCADE
+);
