@@ -32,7 +32,7 @@ Then run:
 - chmod +x setup_dataset.sh
 - ./setup_dataset.sh
 
-Enter your username and password in the prompt[1] 
+Enter your username and password in the prompt[1].
 
 And now the dataset is ready!
 
