@@ -7,7 +7,7 @@ FIELDS TERMINATED BY ','
 ENCLOSED BY '"' 
 LINES TERMINATED BY '\n'
 IGNORE 1 LINES
-(@anime_id, aname, @eng, @other, score, synopsis, type, episodes, aired,
+(@anime_id, aname, @eng, @other, score, @genres, synopsis, atype, episodes, aired,
  @premiered, @status, @producers, @licensors, @studios, @source, @duration, 
  @rating, @rank, @popularity, @favorites, @scoredby, @members, imageURL);
 
@@ -55,4 +55,3 @@ ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
 IGNORE 1 LINES
 (uid, aid);
-
