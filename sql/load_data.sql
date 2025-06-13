@@ -7,8 +7,8 @@ FIELDS TERMINATED BY ','
 ENCLOSED BY '"' 
 LINES TERMINATED BY '\n'
 IGNORE 1 LINES
-(@anime_id, aname, @eng, @other, score, @genres, synopsis, type, episodes, aired,
- @premiered, @status, @producers, @licensors, @studios, @source, @duration, 
+(@anime_id, aname, score, synopsis, type, episodes, aired,
+ @status, @producers, @licensors, @studios, @source, @duration, 
  @rating, @rank, @popularity, @favorites, @scoredby, @members, imageURL);
 
 -- Load Genre table

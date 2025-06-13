@@ -16,7 +16,7 @@ CREATE TABLE Anime (
   synopsis TEXT,
   type ENUM('TV', 'Movie', 'OVA', 'ONA', 'Special', 'Music', 'Unknown') NOT NULL,
   episodes INT,
-  aired VARCHAR(100),
+  aired DATE,
   imageURL VARCHAR(255)
 );
 
