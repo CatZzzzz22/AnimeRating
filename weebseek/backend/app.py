@@ -4,7 +4,7 @@ from routes.anime_routes import anime_bp
 from db.connection import get_db_connection
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/api/*": {"origins": "http://localhost:5173"}})
 
 # Create the tables automatically only once for setup
 # Will skip creating tables next time
