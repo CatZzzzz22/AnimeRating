@@ -2,7 +2,7 @@ from dotenv import load_dotenv
 import os
 import mysql.connector
 
-load_dotenv()  # Load .env file
+load_dotenv()  # Load DB credentials from .env file
 
 def get_db_connection():
     return mysql.connector.connect(
