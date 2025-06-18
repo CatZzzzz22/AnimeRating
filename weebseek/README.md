@@ -1,11 +1,41 @@
-# Developers Need To Start With...
-1. Create a .env file under the backend directory:
+# Set up the environment:
+Create a .env file under the backend directory.
+.env:
     DB_USER=your_username
     DB_PASSWORD=your_password  
-   Don't push your .env file, it is how you can connect to your local host.
+Don't push your .env file, it is how you can connect to your local host.
 
-### run the Flask app:
-python3 app.py
+### test DB connection during setup:
+python3 test_db.py
+
+### run the Flask app under backend directory:
+    python3 app.py
+If you want to run in the debug mode:
+    FLASK_ENV=development python3 app.py
+
+## When you work with weebseek, follow the folder structure below:
+weebseek/
+├── backend/                     # Python Flask backend
+│   ├── app.py                   # Main Flask app, entry point for Flask app
+│   ├── db/                      # Database-related logic
+│   │   └── connection.py        # MySQL connection setup
+│   ├── routes/                  # API route handlers
+│   │   └── anime_routes.py      # Anime-related API endpoints
+|   └── .env                     # Local DB credentials (Not Tracked)
+│
+├── frontend/                    # React frontend
+│   ├── public/
+│   ├── src/
+│   │   ├── components/          # Reusable React components
+│   │   ├── pages/               # Main screens like Home, AnimeDetail
+│   │   ├── types/               # TypeScript interfaces
+│   │   ├── App.tsx
+│   │   └── main.tsx
+│   └── package.json
+│
+├── .gitignore
+├── README.md
+
 
 # Getting Started with Create React App
 

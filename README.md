@@ -73,4 +73,5 @@ Run the commands in the terminal:
 - Catherine Zhang
 
 [1] The username and password are typically set during the installation of MySQL. It's typically "root" by default if you didn't change the username.
+
 Dataset source: https://www.kaggle.com/datasets/dbdmobile/myanimelist-dataset?resource=download&select=users-score-2023.csv
