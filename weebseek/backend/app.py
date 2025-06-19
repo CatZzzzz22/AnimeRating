@@ -2,8 +2,7 @@ from flask import Flask
 from flask_cors import CORS
 from routes.anime_routes import anime_bp
 from db.connection import get_db_connection
-
-required_tables = {"Anime", "Genre", "AnimeGenre", "User", "Rating", "Watchlist"}
+from constants import REQUIRED_TABLES, CREATE_TABLES_FPATH, LOAD_DATA_FPATH
 
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "http://localhost:5173"}})
@@ -16,12 +15,12 @@ def create_tables():
 
     cursor.execute("SHOW TABLES")
     existing_tables = set(row[0] for row in cursor.fetchall())
-    if required_tables.issubset(existing_tables):
+    if REQUIRED_TABLES.issubset(existing_tables):
         print("All required tables already exists, skipping creation.")
         return
 
     try:
-        with open("../../sql/create_tables.sql", "r") as f:
+        with open(CREATE_TABLES_PATH, "r") as f:
             sql_commands = f.read()
 
         for command in sql_commands.split(";"):
@@ -47,7 +46,7 @@ def load_data():
     try:
         # Check if all tables have data
         all_have_data = True
-        for table in required_tables:
+        for table in REQUIRED_TABLES:
             cursor.execute(f"SELECT COUNT(*) FROM {table}")
             count = cursor.fetchone()[0]
             if count == 0:
@@ -60,7 +59,7 @@ def load_data():
             return
 
         # Load SQL from file
-        with open("../../sql/load_data.sql", "r") as f:
+        with open(LOAD_DATA_FPATH, "r") as f:
             sql_commands = f.read()
 
         for command in sql_commands.split(";"):
