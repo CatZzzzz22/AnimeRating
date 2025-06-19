@@ -72,20 +72,62 @@ Now you can test your SQL commands.
 
 If you want to exit MySQL, simply input "exit".
 
+## To Start The Frontend
+Run these commands in weebseek/frontend:
+- npm i
+- npm run dev
+
+## To Start The Backend
+Create a .env file under the backend directory.
+.env:
+    DB_USER=your_username
+    DB_PASSWORD=your_password  
+Don't push your .env file, it is how you can connect to your local host.
+
+Run these commands in weebseek/backend:
+- pip3 install -r requirements.txt
+- python3 app.py
+
+### test DB connection during setup:
+python3 test_db.py
+
+### run the Flask app under backend directory:
+    python3 app.py
+If you want to run in the debug mode:  
+    ```FLASK_ENV=development python3 app.py```  
+    
+If you see "error loading data: 3948 (42000): Loading local data is disabled; this must be enabled on both the client and server sides", please refer to AnimeRating/README.md to turn on the permission of loading the CSV file. Then rerun the app.
+
+## When you work with weebseek, follow the folder structure below:
+```text
+weebseek/
+├── backend/                     # Python Flask backend
+│   ├── app.py                   # Main Flask app, entry point for Flask app
+│   ├── db/                      # Database-related logic
+│   │   └── connection.py        # MySQL connection setup
+│   ├── routes/                  # API route handlers
+│   │   └── anime_routes.py      # Anime-related API endpoints
+│   └── .env                     # Local DB credentials (Not Tracked)
+│
+├── frontend/                    # React frontend
+│   ├── public/
+│   ├── src/
+│   │   ├── components/          # Reusable React components
+│   │   ├── pages/               # Main screens like Home, AnimeDetail
+│   │   ├── types/               # TypeScript interfaces
+│   │   ├── App.tsx
+│   │   └── main.tsx
+│   └── package.json
+│
+├── .gitignore
+├── README.md
+```
+
 ## Supported Features
 - Users can create accounts and log in
 - Filter anime based on name, genres or type.
 - Sort anime based on rating or release date
 - Users can create their watchlist
-
-## To Start The Server
-Run these commands in weebseek/backend:
-- pip3 install -r requirements.txt
-- python3 app.py
-
-Run these commands in weebseek/frontend:
-- npm i
-- npm run dev
 
 ## Contributors
 - Tracy Hua
