@@ -1,3 +1,5 @@
+DROP VIEW IF EXISTS PopulateAnime;
+
 CREATE VIEW PopulateAnime as 
 select A.*, gname as genre
 from Anime a join AnimeGenre ag on a.aid = ag.aid
