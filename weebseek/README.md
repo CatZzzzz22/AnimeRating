@@ -12,6 +12,7 @@ python3 test_db.py
     python3 app.py
 If you want to run in the debug mode:
     FLASK_ENV=development python3 app.py
+If you see "error loading data: 3948 (42000): Loading local data is disabled; this must be enabled on both the client and server sides", please refer to AnimeRating/README.md to turn on the permission of loading the CSV file. Then rerun the app.
 
 ## When you work with weebseek, follow the folder structure below:
 weebseek/
