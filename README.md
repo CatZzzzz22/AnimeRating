@@ -1,19 +1,25 @@
 # AnimeRating
+## C1 - Loading and Running
 ### Technical Requirements
 - Node.js (latest stable) and NPM
   - Install Node.js: https://nodejs.org
 - MySQL Community Server
 - Python3 and pip3 (or Python and pip if you're on Windows)
 
-## Set Up Data Set
+### Set Up Data Set
 To set up the data set, first you need to install MySQL. Follow the steps to install MySQL:
-- a. For Mac users: run the commands in the terminal
-  - brew update
-  - brew install mysql
+- a. For Mac users:
+  - run the commands in the terminal
+    ```
+    brew update
+    brew install mysql
+    ```
   - If you never installed brew, run:
-    - /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    - echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
-    - eval "$(/opt/homebrew/bin/brew shellenv)"
+    ```
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+    ```
 
 - b. For Windows users:
   1. Download Installer: https://dev.mysql.com/downloads/installer/
@@ -29,8 +35,10 @@ To set up the data set, first you need to install MySQL. Follow the steps to ins
       - Click it and it will open a standalone terminal window
 
 Then run the bash file:
-- chmod +x setup_dataset.sh
-- ./setup_dataset.sh
+```
+chmod +x setup_dataset.sh
+./setup_dataset.sh
+```
 Enter your username and password in the prompt[1].
 
 If you get the error:
@@ -57,81 +65,61 @@ Note: If you choose to tmporarily turn on the permission, then each time you see
 - brew services restart mysql            (restart MySQL)
 
 To check if you have turned on the permission to load the CSV file in MySQL:
-- run the line in MySQL: 
-- SHOW GLOBAL VARIABLES LIKE 'local_infile';
+- run the following command in MySQL: 
+  ```SHOW GLOBAL VARIABLES LIKE 'local_infile'```
 - You should see local_infile is "ON"
 
 ### To Test Your SQL Command in MySQL
 Run the following commands in the terminal:
-- mysql -u [your MySQL username][1] -p
+```mysql -u [your MySQL username][1] -p```
 
   => input your password[1] and then you'll get into MySQL
-- USE AnimeRatingApp;
+```USE AnimeRatingApp;```
 
 Now you can test your SQL commands.
 
-If you want to exit MySQL, simply input "exit".
+If you want to exit MySQL, simply input ```exit```.
 
 
-## To Run The App
-You need two terminals, one for frontend and one for backend, and keep them running at the same time (do NOT terminate one while the other is running!)
-### To Start The Frontend
-Run these commands in weebseek/frontend:
-- npm i
-- npm run dev
+### To Run The Application
+You need two terminals, one for frontend and one for backend, and keep them running at the same time.
+- To Start The Frontend
+  - Run the following commands in ```weebseek/frontend```:
+    ```
+    npm i
+    npm run dev
+    ```
 
-### To Start The Backend
-Create a .env file under the backend directory.
-.env:
+- To Start The Backend
+  - Create a file named ```.env``` in the ```weebseek/backend``` directory, in which put:
+    ```
     DB_USER=your_username
-    DB_PASSWORD=your_password  
-Don't push your .env file, it is how you can connect to your local host.
+    DB_PASSWORD=your_password
+    ```
+  - Run the following commands in ```weebseek/backend```:
+    ```
+    pip3 install -r requirements.txt
+    python3 app.py
+    ```
 
-Run these commands in weebseek/backend:
-- pip3 install -r requirements.txt
-- python3 app.py
+### Currently supported Features
+- Sort animes by rating or aired date
+- To do:
+  - Filter animes by name, genres or type
+  - Create accounts and log in
+  - Create watchlists
 
-### test DB connection during setup:
-  ```python3 test_db.py```
+## C2 - SQL Code
+All SQL code for this project can be found in ```sql```
 
-### run the Flask app under backend directory:
-  ```python3 app.py```
-If you want to run in the debug mode:  
-    ```FLASK_ENV=development python3 app.py```  
-    
-If you see "error loading data: 3948 (42000): Loading local data is disabled; this must be enabled on both the client and server sides", please refer to AnimeRating/README.md to turn on the permission of loading the CSV file. Then rerun the app.
+## C3 - SQL Queries for Features (test queries over sample data)
+All SQL queries can be found in ```sample_sql```
 
-## When you work with weebseek, follow the folder structure below:
-```text
-weebseek/
-├── backend/                     # Python Flask backend
-│   ├── app.py                   # Main Flask app, entry point for Flask app
-│   ├── db/                      # Database-related logic
-│   │   └── connection.py        # MySQL connection setup
-│   ├── routes/                  # API route handlers
-│   │   └── anime_routes.py      # Anime-related API endpoints
-│   └── .env                     # Local DB credentials (Not Tracked)
-│
-├── frontend/                    # React frontend
-│   ├── public/
-│   ├── src/
-│   │   ├── components/          # Reusable React components
-│   │   ├── pages/               # Main screens like Home, AnimeDetail
-│   │   ├── types/               # TypeScript interfaces
-│   │   ├── App.tsx
-│   │   └── main.tsx
-│   └── package.json
-│
-├── .gitignore
-├── README.md
-```
+## C4 - SQL Queries for Features (test queries over production data)
+(to do for milestone 2)
 
-## Currently supported Features
-- Sort anime based on rating or release date
-### To do:
-- Filter anime based on name, genres or type
-- Users can create accounts and log in
-- Users can create their watchlist
+## C5 - Application Code
+All application code can be found in ```weebseek```
 
 ## Contributors
 - Tracy Hua
@@ -142,4 +130,5 @@ weebseek/
 
 [1] The username and password are typically set during the installation of MySQL. It's typically "root" by default if you didn't change the username.
 
+## Source
 Dataset source: https://www.kaggle.com/datasets/dbdmobile/myanimelist-dataset?resource=download&select=users-score-2023.csv
