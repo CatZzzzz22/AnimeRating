@@ -6,8 +6,7 @@
 - MySQL Community Server
 - Python3 and pip3 (or Python and pip if you're on Windows)
 
-### Set Up Dataset
-To set up the data set, first you need to install MySQL. Follow the steps to install MySQL:
+First you need to install MySQL - follow the steps to install MySQL:
 - a. For Mac users:
   - Run the following commands in the terminal
     ```
@@ -60,19 +59,11 @@ To check if you have turned on the permission to load the CSV file in MySQL:
   ```SHOW GLOBAL VARIABLES LIKE 'local_infile'```
 - You should see local_infile is "ON"
 
-### To Test Your SQL Command in MySQL
-Run the following commands in the terminal:
-```mysql -u [your MySQL username][1] -p```
 
-  => input your password[1] and then you'll get into MySQL
-```USE AnimeRatingApp;```
+### Set Up The Dataset
+To create and load the sample database, see below section to run the backend.
 
-Now you can test your SQL commands.
-
-If you want to exit MySQL, simply input ```exit```.
-
-
-### To Run The Application
+### Run The Application
 You need two terminals, one for frontend and one for backend, and keep them running at the same time.
 - To Start The Frontend
   - Run the following commands in ```weebseek/frontend```:
