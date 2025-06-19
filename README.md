@@ -39,6 +39,12 @@ If you get the error:
   => input your password[1] and then you'll get into MySQL
 - SET GLOBAL local_infile = 1;           (turn on the permission to load the CSV file)
 - exit                                   (exit MySQL)
+
+Check if you have turned on the permission to load the CSV file in MySQL:
+- run the line in MySQL: 
+- SHOW GLOBAL VARIABLES LIKE 'local_infile';
+- You should see local_infile is "ON"
+
 And rerun the bash file.
 
 And now the dataset is ready!

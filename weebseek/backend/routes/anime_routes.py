@@ -4,6 +4,7 @@ from db.connection import get_db_connection
 anime_bp = Blueprint("anime", __name__)
 
 CREATE_TABLES_FPATH = "../../sql/create_tables.sql"
+LOAD_DATA_FPATH = "../../sql/load_data.sql"
 
 def read_commands_from_file(fpath):
     sql_commands = []
@@ -47,6 +48,38 @@ def create_tables():
 
     except Exception as e:
         print("Error while creating tables:", e)
+        conn.rollback()
+        return jsonify({"error": str(e)}), 500
+    
+    finally:
+        cursor.close()
+        conn.close()
+
+## Load data to schemas. Should already be loaded when you start running the app.
+## Test if data is loaded:
+##    1. run Flask app with debug mode
+##    2. open another terminal and run: 
+##       curl -X POST http://localhost:5050/api/anime/load-data
+## should see: {"message": "Load data successfully."}
+@anime_bp.route("/api/anime/load-data", methods=["POST"])
+def load_data():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    try:
+        sql_commands = read_commands_from_file(LOAD_DATA_FPATH)
+
+        if sql_commands:
+            for command in sql_commands:
+                cursor.execute(command)
+            
+            conn.commit()
+            return jsonify({"message": "Load data successfully."}), 201
+        else:
+            raise Exception("No SQL commands found in file or the file path is wrong.")
+    
+    except Exception as e:
+        print("Error while loading data:", e)
         conn.rollback()
         return jsonify({"error": str(e)}), 500
     

@@ -9,5 +9,6 @@ def get_db_connection():
         host="localhost",
         user=os.getenv("DB_USER"),
         password=os.getenv("DB_PASSWORD"),
-        database="AnimeRatingApp"
+        database="AnimeRatingApp",
+        allow_local_infile=True
     )
