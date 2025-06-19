@@ -42,6 +42,7 @@ CREATE TABLE User (
   uname VARCHAR(255),
   gender VARCHAR(10),
   age INT,
+  location VARCHAR(100),
   joinedDate DATE
 );
 

@@ -1,4 +1,4 @@
 uid,username,password,uname,gender,age,joinedDate
-1,alice21,alicepass123,Alice,F,21,2024-01-10
-2,bob_theman,bobsecure456,Bob,M,24,2024-02-15
-3,charliex,charliepw789,Charlie,M,20,2024-03-05
+1,alice21,alicepass123,Alice,F,21,Toronto,2024-01-10
+2,bob_theman,bobsecure456,Bob,M,24,Canada,2024-02-15
+3,charliex,charliepw789,Charlie,M,20,Neverland,2024-03-05
