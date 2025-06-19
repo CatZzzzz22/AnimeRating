@@ -3,6 +3,7 @@
 - Node.js (latest stable) and NPM
   - Install Node.js: https://nodejs.org
 - MySQL Community Server
+- Python3 and pip3 (or Python and pip if you're on Windows)
 
 ## Set Up Data Set
 To set up the data set, first you need to install MySQL. Follow the steps to install MySQL:
@@ -79,8 +80,8 @@ If you want to exit MySQL, simply input "exit".
 
 ## To Start The Server
 Run these commands in weebseek/backend:
-- pip install -r requirements.txt
-- python app.py
+- pip3 install -r requirements.txt
+- python3 app.py
 
 Run these commands in weebseek/frontend:
 - npm i
