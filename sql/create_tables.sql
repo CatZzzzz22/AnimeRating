@@ -30,6 +30,7 @@ CREATE TABLE Genre (
 CREATE TABLE AnimeGenre (
   aid INT,
   gid INT,
+  PRIMARY KEY (aid, gid),
   FOREIGN KEY (aid) REFERENCES Anime(aid),
   FOREIGN KEY (gid) REFERENCES Genre(gid)
 );
@@ -42,6 +43,7 @@ CREATE TABLE User (
   uname VARCHAR(255),
   gender VARCHAR(10),
   age INT,
+  location VARCHAR(100),
   joinedDate DATE
 );
 
