@@ -30,6 +30,7 @@ CREATE TABLE Genre (
 CREATE TABLE AnimeGenre (
   aid INT,
   gid INT,
+  PRIMARY KEY (aid, gid),
   FOREIGN KEY (aid) REFERENCES Anime(aid),
   FOREIGN KEY (gid) REFERENCES Genre(gid)
 );
