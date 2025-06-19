@@ -1,4 +1,9 @@
 # AnimeRating
+### Technical Requirements
+- Node.js (latest stable) and NPM
+  - Install Node.js: https://nodejs.org
+- MySQL Community Server
+
 ## Set Up Data Set
 To set up the data set, first you need to install MySQL. Follow the steps to install MySQL:
 - a. For Mac users: run the commands in the terminal
@@ -55,6 +60,11 @@ If you want to exit MySQL, simply input "exit".
 - Sort anime based on rating or release date
 - Users can create their watchlist
 
+## To Start The Server
+Run the commands in the terminal:
+- cd weebseek
+- npm start
+
 ## Contributors
 - Tracy Hua
 - Grace Luo
@@ -63,4 +73,5 @@ If you want to exit MySQL, simply input "exit".
 - Catherine Zhang
 
 [1] The username and password are typically set during the installation of MySQL. It's typically "root" by default if you didn't change the username.
+
 Dataset source: https://www.kaggle.com/datasets/dbdmobile/myanimelist-dataset?resource=download&select=users-score-2023.csv
