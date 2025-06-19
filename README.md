@@ -72,12 +72,15 @@ Now you can test your SQL commands.
 
 If you want to exit MySQL, simply input "exit".
 
-## To Start The Frontend
+
+## To Run The App
+You need two terminals, one for frontend and one for backend, and keep them running at the same time (do NOT terminate one while the other is running!)
+### To Start The Frontend
 Run these commands in weebseek/frontend:
 - npm i
 - npm run dev
 
-## To Start The Backend
+### To Start The Backend
 Create a .env file under the backend directory.
 .env:
     DB_USER=your_username
@@ -89,10 +92,10 @@ Run these commands in weebseek/backend:
 - python3 app.py
 
 ### test DB connection during setup:
-python3 test_db.py
+  ```python3 test_db.py```
 
 ### run the Flask app under backend directory:
-    python3 app.py
+  ```python3 app.py```
 If you want to run in the debug mode:  
     ```FLASK_ENV=development python3 app.py```  
     
@@ -123,10 +126,11 @@ weebseek/
 ├── README.md
 ```
 
-## Supported Features
-- Users can create accounts and log in
-- Filter anime based on name, genres or type.
+## Currently supported Features
 - Sort anime based on rating or release date
+### To do:
+- Filter anime based on name, genres or type
+- Users can create accounts and log in
 - Users can create their watchlist
 
 ## Contributors
