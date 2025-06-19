@@ -33,21 +33,32 @@ Then run the bash file:
 Enter your username and password in the prompt[1].
 
 If you get the error:
-"ERROR 3948 (42000) at line 4: Loading local data is disabled; this must be enabled on both the client and server sides", then run:
+"ERROR 3948 (42000) at line 4: Loading local data is disabled; this must be enabled on both the client and server sides", 
+it means you haven't turn on the permission of loading CSV files locally. Please refer to the section "Turn On Local Infile Permission In MySQL" and then rerun the bash file.
+
+Now the dataset is ready!
+
+### Turn On Local Infile Permission In MySQL
+You can choose to config the permission temporarily or make it permanent.
+1. Turn on the permission temporarily:
 - mysql -u [your MySQL username][1] -p   (log into MySQL)
 
   => input your password[1] and then you'll get into MySQL
 - SET GLOBAL local_infile = 1;           (turn on the permission to load the CSV file)
 - exit                                   (exit MySQL)
 
-Check if you have turned on the permission to load the CSV file in MySQL:
+Note: If you choose to tmporarily turn on the permission, then each time you see the error "Loading local data is disabled; this must be enabled on both the client and server sides", you need to set the variable to 1 again.
+
+2. Turn on the permission permanently:
+- nano /usr/local/etc/my.cnf
+- add the line under the section heading [mysqld]: local_infile=1
+- Press Ctrl + O to save, Enter to confirm, and Ctrl + X to exit
+- brew services restart mysql            (restart MySQL)
+
+To check if you have turned on the permission to load the CSV file in MySQL:
 - run the line in MySQL: 
 - SHOW GLOBAL VARIABLES LIKE 'local_infile';
 - You should see local_infile is "ON"
-
-And rerun the bash file.
-
-And now the dataset is ready!
 
 ### To Test Your SQL Command in MySQL
 Run the following commands in the terminal:

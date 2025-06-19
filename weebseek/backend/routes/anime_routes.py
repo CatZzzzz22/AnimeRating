@@ -1,10 +1,8 @@
 from flask import Blueprint, jsonify, request
 from db.connection import get_db_connection
+from constants import CREATE_TABLES_FPATH, LOAD_DATA_FPATH
 
 anime_bp = Blueprint("anime", __name__)
-
-CREATE_TABLES_FPATH = "../../sql/create_tables.sql"
-LOAD_DATA_FPATH = "../../sql/load_data.sql"
 
 def read_commands_from_file(fpath):
     sql_commands = []
