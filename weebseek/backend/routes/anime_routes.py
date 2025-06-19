@@ -98,7 +98,7 @@ def get_anime():
     order = request.args.get("order", default="asc")
 
     # Prevent SQL injection by allowing only certain fields
-    allowed_fields = ["rating", "aired"]  # users can sort Anime table by rating or aired
+    allowed_fields = ["score", "aired"]  # users can sort Anime table by rating or aired
     if sort_by not in allowed_fields:
         sort_by = "aid"
     if order.lower() not in ["asc", "desc"]:

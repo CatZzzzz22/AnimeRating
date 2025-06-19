@@ -7,4 +7,10 @@ export interface AnimeType {
   synopsis?: string;
   type?: string;
   episodes?: number;
+  imageURL?: string;
 }
+
+export type SortType = "score" | "aired";
+
+export type SortOrder = "asc" | "desc";
+
