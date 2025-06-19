@@ -5,9 +5,7 @@ CREATE VIEW AnimeAggregate AS (Select A.*, G.gname
 -- Match all anime where name contains 'kenshin'
 SELECT aname, score, type, gname, synopsis
 FROM AnimeAggregate
-WHERE LOWER(aname) LIKE '%kenshin%'
-
-UNION
+WHERE LOWER(aname) LIKE '%kenshin%';
 
 -- Match all anime where genres is romance
 SELECT aname, score, type, gname, synopsis
