@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from db.connection import get_db_connection
-from constants import CREATE_TABLES_FPATH, LOAD_DATA_FPATH
+from constants import INIT_DB_FPATH, LOAD_DATA_FPATH
 
 anime_bp = Blueprint("anime", __name__)
 
@@ -21,31 +21,31 @@ def read_commands_from_file(fpath):
         print("Error while reading commands from file:", e)
         return sql_commands
 
-## Create the schemas. Should all be created when you starting running the app.
+## Create the database and schemas. Should all be created when you starting running the app.
 ## Test if tables are created:
 ##    1. run Flask app with debug mode
 ##    2. open another terminal and run: 
 ##       curl -X POST http://localhost:5050/api/anime/create-tables
-## should see: {"message": "Tables created successfully."}
+## should see: {"message": "DB and tables created successfully."}
 @anime_bp.route("/api/anime/create-tables", methods=["POST"])
 def create_tables():
     conn = get_db_connection()
     cursor = conn.cursor()
 
     try:
-        sql_commands = read_commands_from_file(CREATE_TABLES_FPATH)
+        sql_commands = read_commands_from_file(INIT_DB_FPATH)
 
         if sql_commands:
             for command in sql_commands:
                 cursor.execute(command)
 
             conn.commit()
-            return jsonify({"message": "Tables created successfully."}), 201
+            return jsonify({"message": "DB and tables created successfully."}), 201
         else:
             raise Exception("No SQL commands found in file or the file path is wrong.")
 
     except Exception as e:
-        print("Error while creating tables:", e)
+        print("Error while creating DB and tables:", e)
         conn.rollback()
         return jsonify({"error": str(e)}), 500
     
