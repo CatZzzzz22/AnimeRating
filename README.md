@@ -6,10 +6,10 @@
 - MySQL Community Server
 - Python3 and pip3 (or Python and pip if you're on Windows)
 
-### Set Up Data Set
+### Set Up Dataset
 To set up the data set, first you need to install MySQL. Follow the steps to install MySQL:
 - a. For Mac users:
-  - run the commands in the terminal
+  - Run the following commands in the terminal
     ```
     brew update
     brew install mysql
@@ -34,18 +34,9 @@ To set up the data set, first you need to install MySQL. Follow the steps to ins
       - Search for Git Bash
       - Click it and it will open a standalone terminal window
 
-Then run the bash file:
-```
-chmod +x setup_dataset.sh
-./setup_dataset.sh
-```
-Enter your username and password in the prompt[1].
-
 If you get the error:
 "ERROR 3948 (42000) at line 4: Loading local data is disabled; this must be enabled on both the client and server sides", 
 it means you haven't turn on the permission of loading CSV files locally. Please refer to the section "Turn On Local Infile Permission In MySQL" and then rerun the bash file.
-
-Now the dataset is ready!
 
 ### Turn On Local Infile Permission In MySQL
 You can choose to config the permission temporarily or make it permanent.
