@@ -1,7 +1,7 @@
 export interface AnimeType {
   aid: number,
   aname: string,
-  rating: number,
+  score: number,
   aired: string,
   genres: string;
   synopsis?: string;
