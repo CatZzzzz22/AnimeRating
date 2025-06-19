@@ -20,7 +20,7 @@ def create_tables():
         return
 
     try:
-        with open(CREATE_TABLES_PATH, "r") as f:
+        with open(CREATE_TABLES_FPATH, "r") as f:
             sql_commands = f.read()
 
         for command in sql_commands.split(";"):
