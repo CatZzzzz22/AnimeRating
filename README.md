@@ -78,9 +78,13 @@ If you want to exit MySQL, simply input "exit".
 - Users can create their watchlist
 
 ## To Start The Server
-Run the commands in the terminal:
-- cd weebseek
-- npm start
+Run these commands in weebseek/backend:
+- pip install -r requirements.txt
+- python app.py
+
+Run these commands in weebseek/frontend:
+- npm i
+- npm run dev
 
 ## Contributors
 - Tracy Hua
