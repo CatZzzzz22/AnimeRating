@@ -2,25 +2,26 @@ from flask import Flask
 from flask_cors import CORS
 from routes.anime_routes import anime_bp
 from db.connection import get_db_connection
-from constants import REQUIRED_TABLES, CREATE_TABLES_FPATH, LOAD_DATA_FPATH
+from constants import REQUIRED_TABLES, INIT_DB_FPATH, LOAD_DATA_FPATH
 
-app = Flask(__name__)
+app = Flask("WeebSeek")
 CORS(app, resources={r"/api/*": {"origins": "http://localhost:5173"}})
 
-# Create the tables automatically only once for setup
-# Will skip creating tables next time
-def create_tables():
-    conn = get_db_connection()
+# Create the database and tables automatically
+def init_database():
+    conn = get_db_connection(with_db=False)
     cursor = conn.cursor()
 
+    cursor.execute("CREATE DATABASE IF NOT EXISTS AnimeRatingApp")
+    cursor.execute("USE AnimeRatingApp")
     cursor.execute("SHOW TABLES")
     existing_tables = set(row[0] for row in cursor.fetchall())
     if REQUIRED_TABLES.issubset(existing_tables):
-        print("All required tables already exists, skipping creation.")
+        print("Database and all required tables already exists, skipping creation.")
         return
 
     try:
-        with open(CREATE_TABLES_FPATH, "r") as f:
+        with open(INIT_DB_FPATH, "r") as f:
             sql_commands = f.read()
 
         for command in sql_commands.split(";"):
@@ -29,11 +30,11 @@ def create_tables():
                 cursor.execute(command)
 
         conn.commit()
-        print("Tables created (initial setup once per device).")
+        print("Database and tables created (initial setup once per device).")
 
     except Exception as e:
         conn.rollback()
-        print("Error creating tables:", e)
+        print("Error creating database and tables:", e)
 
     finally:
         cursor.close()
@@ -78,7 +79,7 @@ def load_data():
         cursor.close()
         conn.close()
 
-create_tables()
+init_database()
 load_data()
 app.register_blueprint(anime_bp)
 
