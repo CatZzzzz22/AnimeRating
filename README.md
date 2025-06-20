@@ -40,13 +40,15 @@ it means you haven't turn on the permission of loading CSV files locally. Please
 ### Turn On Local Infile Permission In MySQL
 You can choose to config the permission temporarily or make it permanent.
 1. Turn on the permission temporarily:
-- mysql -u [your MySQL username][1] -p   (log into MySQL)
+- mysql -u [your MySQL username] -p   (log into MySQL)
 
-  => input your password[1] and then you'll get into MySQL
+  => input your password and then you'll get into MySQL
 - SET GLOBAL local_infile = 1;           (turn on the permission to load the CSV file)
 - exit                                   (exit MySQL)
 
-Note: If you choose to tmporarily turn on the permission, then each time you see the error "Loading local data is disabled; this must be enabled on both the client and server sides", you need to set the variable to 1 again.
+The username and password are typically set during the installation of MySQL. It's typically "root" by default if you didn't change the username.
+
+Note: If you choose to temporarily turn on the permission, then each time you see the error "Loading local data is disabled; this must be enabled on both the client and server sides", you need to set the variable to 1 again.
 
 2. Turn on the permission permanently:
 - nano /usr/local/etc/my.cnf
@@ -109,8 +111,6 @@ All application code can be found in ```weebseek```
 - Mengdie Wu
 - Kwan Yoon
 - Catherine Zhang
-
-[1] The username and password are typically set during the installation of MySQL. It's typically "root" by default if you didn't change the username.
 
 ## Source
 Dataset source: https://www.kaggle.com/datasets/dbdmobile/myanimelist-dataset?resource=download&select=users-score-2023.csv
