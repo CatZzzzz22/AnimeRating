@@ -34,7 +34,7 @@ First you need to install MySQL - follow the steps to install MySQL:
       - Click it and it will open a standalone terminal window
 
 If you get the error:
-```"ERROR 3948 (42000) at line 4: Loading local data is disabled; this must be enabled on both the client and server sides"``` 
+```"ERROR 3948 (42000) at line 4: Loading local data is disabled; this must be enabled on both the client and server sides"```.
 It means you haven't turn on the permission of loading CSV files locally. Please refer to the section "Turn On Local Infile Permission In MySQL" and then rerun the bash file.
 
 ### Turn On Local Infile Permission In MySQL
@@ -51,9 +51,11 @@ The username and password are typically set during the installation of MySQL. It
 Note: If you choose to temporarily turn on the permission, then each time you see the error "Loading local data is disabled; this must be enabled on both the client and server sides", you need to set the variable to 1 again.
 
 2. Turn on the permission permanently:
+
   ```nano /usr/local/etc/my.cnf```
 - add the line under the section heading ```[mysqld]```: ```local_infile=1```
 - Press Ctrl + O to save, Enter to confirm, and Ctrl + X to exit
+
   ```brew services restart mysql            (restart MySQL)```
 
 To check if you have turned on the permission to load the CSV file in MySQL:
