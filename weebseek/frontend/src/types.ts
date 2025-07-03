@@ -14,3 +14,13 @@ export type SortType = "score" | "aired";
 
 export type SortOrder = "asc" | "desc";
 
+export const TypeOptions = [
+  'TV',
+  'Movie',
+  'OVA',
+  'ONA',
+  'Special',
+  'Music',
+  'Unknown',
+] as const;
+

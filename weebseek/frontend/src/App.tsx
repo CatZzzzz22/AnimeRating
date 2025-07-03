@@ -5,7 +5,8 @@ import type { AnimeType, SortOrder, SortType } from './types';
 import './App.css'
 import AnimeList from './components/AnimeList';
 import { Box, Button, Container, FormControl, InputLabel, MenuItem, Select, Typography, type SelectChangeEvent } from '@mui/material';
-import GenreFilter from './components/GenreFilter';
+import GenreFilter from './components/Filters';
+import TypeFilter from './components/Filters/TypeFilter';
 
 function App() {
   const [loading, setLoading] = useState<boolean>(false);
@@ -16,6 +17,8 @@ function App() {
 
   const [genres, setGenres] = useState<string[]>([]);
   const [selectedGenre, setSelectedGenre] = useState<string>('');
+
+  const [selectedType, setSelectedType] = useState<string>('');
 
   const [animeList, setAnimeList] = useState<AnimeType[]>([]);
 
@@ -35,9 +38,9 @@ function App() {
 
     try {
       let url = `/api/anime?sort_by=${sortBy}&order=${sortOrder}`;
-      if (selectedGenre) {
-        url += `&genre=${encodeURIComponent(selectedGenre)}`
-      }
+      if (selectedGenre) url += `&genre=${encodeURIComponent(selectedGenre)}`;
+      if (selectedType) url += `&type=${encodeURIComponent(selectedType)}`;
+
       const data = await apiFetch<AnimeType[]>(url);
       setAnimeList(data);
     } catch (e: any) {
@@ -61,7 +64,7 @@ function App() {
 
   useEffect(() => {
     fetchAnime();
-  }, [sortBy, sortOrder])
+  }, [sortBy, sortOrder, selectedGenre, selectedType])
 
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>
@@ -92,6 +95,11 @@ function App() {
           genres={genres}
           selectedGenre={selectedGenre}
           onChange={setSelectedGenre}
+        />
+
+        <TypeFilter
+          selectedType={selectedType}
+          onChange={setSelectedType}
         />
       </Box>
 
