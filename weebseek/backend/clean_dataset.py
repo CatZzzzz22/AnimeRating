@@ -1,6 +1,11 @@
 import pandas as pd
 import numpy as np
 import datetime
+import os
+
+#### CREATE A NEW DIRECTORY FOR CLEANED DATA ####
+dir_path = '../../production_cleaned_data'
+os.makedirs(dir_path, exist_ok=True)
 
 ##### IMPORT ANIME DETAILS #####
 
