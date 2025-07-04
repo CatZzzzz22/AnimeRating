@@ -1,18 +1,16 @@
 USE AnimeRatingApp;
 
 -- Load Anime table
-LOAD DATA LOCAL INFILE '../../data/sample_anime.csv'
+LOAD DATA LOCAL INFILE '../../production_cleaned_data/anime.csv'
 INTO TABLE Anime
 FIELDS TERMINATED BY ',' 
 ENCLOSED BY '"' 
 LINES TERMINATED BY '\n'
 IGNORE 1 LINES
-(@anime_id, aname, score, synopsis, type, episodes, aired,
- @status, @producers, @licensors, @studios, @source, @duration, 
- @rating, @rank, @popularity, @favorites, @scoredby, @members, imageURL);
+(aid, aname, score, synopsis, type, episodes, aired, imageURL, numRaing);
 
 -- Load Genre table
-LOAD DATA LOCAL INFILE '../../data/sample_genres.csv'
+LOAD DATA LOCAL INFILE '../../production_cleaned_data/genre.csv'
 INTO TABLE Genre
 FIELDS TERMINATED BY ',' 
 ENCLOSED BY '"' 
@@ -21,7 +19,7 @@ IGNORE 1 LINES
 (gid, gname);
 
 -- Load AnimeGenre table
-LOAD DATA LOCAL INFILE '../../data/sample_animegenre.csv'
+LOAD DATA LOCAL INFILE '../../production_cleaned_data/animegenre.csv'
 INTO TABLE AnimeGenre
 FIELDS TERMINATED BY ',' 
 ENCLOSED BY '"' 
@@ -30,13 +28,13 @@ IGNORE 1 LINES
 (aid, gid);
 
 -- Load Users
-LOAD DATA LOCAL INFILE '../../data/sample_users.csv'
+LOAD DATA LOCAL INFILE '../../production_cleaned_data/user.csv'
 INTO TABLE User
 FIELDS TERMINATED BY ',' 
 ENCLOSED BY '"' 
 LINES TERMINATED BY '\n'
 IGNORE 1 LINES
-(uid, username, password, uname, gender, age, joinedDate);
+(uid, username, password, uname, gender, age, location, joinedDate);
 
 -- Load Ratings
 LOAD DATA LOCAL INFILE '../../data/sample_ratings.csv'
