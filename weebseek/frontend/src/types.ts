@@ -3,7 +3,7 @@ export interface AnimeType {
   aname: string,
   score: number,
   aired: string,
-  genres: string;
+  genres: string[];
   synopsis?: string;
   type?: string;
   episodes?: number;
@@ -13,4 +13,14 @@ export interface AnimeType {
 export type SortType = "score" | "aired";
 
 export type SortOrder = "asc" | "desc";
+
+export const TypeOptions = [
+  'TV',
+  'Movie',
+  'OVA',
+  'ONA',
+  'Special',
+  'Music',
+  'Unknown',
+] as const;
 
