@@ -4,15 +4,11 @@ import type { AnimeType, SortOrder, SortType } from './types';
 
 import './App.css'
 import AnimeList from './components/AnimeList';
-import { Alert, AppBar, Box, Button, CircularProgress, Container, FormControl, InputLabel, MenuItem, Select, Toolbar, Typography, type SelectChangeEvent } from '@mui/material';
+import { Box, Button, Container, FormControl, InputLabel, MenuItem, Select, Typography, type SelectChangeEvent } from '@mui/material';
 import GenreFilter from './components/Filters';
 import TypeFilter from './components/Filters/TypeFilter';
-import AuthModal from './components/Auth';
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [authModalOpen, setAuthModalOpen] = useState(false);
-
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -62,21 +58,6 @@ function App() {
     setSortOrder(prev => (prev === 'asc' ? 'desc' : 'asc'));
   }
 
-  const handleLogout = async () => {
-    await fetch('/api/logout', { method: 'POST', credentials: 'include' });
-    setIsLoggedIn(false);
-  }
-
-  // will need once cookies implemented - checks if there is existing cookie
-  // useEffect(() => {
-  //   (async () => {
-  //     try {
-  //       const me = await fetch('/api/check', { credentials: 'include' });
-  //       if (me.ok) setIsLoggedIn(true);
-  //     } catch { }
-  //   })();
-  // }, []);
-
   useEffect(() => {
     loadGenres();
   }, []);
@@ -86,70 +67,44 @@ function App() {
   }, [sortBy, sortOrder, selectedGenre, selectedType])
 
   return (
-    <>
-      <AppBar position='static'>
-        <Toolbar>
-          <Typography variant='h6' sx={{ flexGrow: 1 }}>
-            Weebseek
-          </Typography>
-          {isLoggedIn ? (
-            <Button color="inherit" onClick={handleLogout}>
-              Logout
-            </Button>
-          ) : (
-            <Button color='inherit' onClick={() => setAuthModalOpen(true)}>
-              Login / Register
-            </Button>
-          )}
-        </Toolbar>
-      </AppBar>
-      <Container maxWidth="md" sx={{ mt: 4 }}>
-        <Box display="flex" alignItems="center" gap={2} mb={3}>
-          <FormControl sx={{ minWidth: 150 }}>
-            <InputLabel id="sort-label">Sort by</InputLabel>
-            <Select
-              labelId="sort-label"
-              value={sortBy}
-              label="Sort by"
-              onChange={handleSortByChange}
-              size="small"
-            >
-              <MenuItem value="score">Score</MenuItem>
-              <MenuItem value="aired">Aired Date</MenuItem>
-            </Select>
-          </FormControl>
+    <Container maxWidth="md" sx={{ mt: 4 }}>
+      <Typography variant="h4" gutterBottom>
+        Anime List
+      </Typography>
 
-          <Button variant="outlined" onClick={toggleSortOrder}>
-            {sortOrder === 'asc' ? 'Ascending' : 'Descending'}
-          </Button>
+      <Box display="flex" alignItems="center" gap={2} mb={3}>
+        <FormControl sx={{ minWidth: 150 }}>
+          <InputLabel id="sort-label">Sort by</InputLabel>
+          <Select
+            labelId="sort-label"
+            value={sortBy}
+            label="Sort by"
+            onChange={handleSortByChange}
+            size="small"
+          >
+            <MenuItem value="score">Score</MenuItem>
+            <MenuItem value="aired">Aired Date</MenuItem>
+          </Select>
+        </FormControl>
 
-          <GenreFilter
-            genres={genres}
-            selectedGenre={selectedGenre}
-            onChange={setSelectedGenre}
-          />
+        <Button variant="outlined" onClick={toggleSortOrder}>
+          {sortOrder === 'asc' ? 'Ascending' : 'Descending'}
+        </Button>
 
-          <TypeFilter
-            selectedType={selectedType}
-            onChange={setSelectedType}
-          />
-        </Box>
+        <GenreFilter
+          genres={genres}
+          selectedGenre={selectedGenre}
+          onChange={setSelectedGenre}
+        />
 
-        {loading ? (
-          <Box textAlign="center"><CircularProgress /></Box>
-        ) : error ? (
-          <Alert severity="error">{error}</Alert>
-        ) : (
-          <AnimeList animeList={animeList} />
-        )}
-      </Container>
+        <TypeFilter
+          selectedType={selectedType}
+          onChange={setSelectedType}
+        />
+      </Box>
 
-      <AuthModal
-        open={authModalOpen}
-        onClose={() => setAuthModalOpen(false)}
-        onSuccess={() => setIsLoggedIn(true)}
-      />
-    </>
+      <AnimeList animeList={animeList} />
+    </Container>
   )
 }
 
