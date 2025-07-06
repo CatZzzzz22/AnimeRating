@@ -22,7 +22,17 @@ def sort_anime():
     cursor = conn.cursor(dictionary=True)
 
     try:
-        query = f"SELECT * FROM Anime_genre ORDER BY {sort_by} {order.upper()}"
+        if sort_by == "aired":
+            query = f"""
+                SELECT * FROM Anime_genre
+                ORDER BY {sort_by} IS NULL, {sort_by} {order.upper()}
+            """
+        else:
+            query = f"""
+                SELECT * FROM Anime_genre
+                ORDER BY {sort_by} {order.upper()}
+            """
+            
         cursor.execute(query)
         results = cursor.fetchall()
 
