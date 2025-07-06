@@ -1,10 +1,13 @@
 from flask import Flask
 from flask_cors import CORS
+from routes.auth_routes import auth_bp
 from routes.anime_routes import anime_bp
 from db.connection import get_db_connection
-from constants import REQUIRED_TABLES, INIT_DB_FPATH, LOAD_DATA_FPATH
+from utils.sql_utils import read_commands_from_file
+from constants import REQUIRED_TABLES, INIT_DB_FPATH, CREATE_VIEW_FPATH, LOAD_DATA_FPATH
 
 app = Flask("WeebSeek")
+app.secret_key = "supersecretkey"
 CORS(app, resources={r"/api/*": {"origins": "http://localhost:5173"}})
 
 # Create the database and tables automatically
@@ -21,13 +24,9 @@ def init_database():
         return
 
     try:
-        with open(INIT_DB_FPATH, "r") as f:
-            sql_commands = f.read()
-
-        for command in sql_commands.split(";"):
-            command = command.strip()
-            if command:
-                cursor.execute(command)
+        sql_commands = read_commands_from_file(INIT_DB_FPATH)
+        for command in sql_commands:
+            cursor.execute(command)
 
         conn.commit()
         print("Database and tables created (initial setup once per device).")
@@ -60,13 +59,9 @@ def load_data():
             return
 
         # Load SQL from file
-        with open(LOAD_DATA_FPATH, "r") as f:
-            sql_commands = f.read()
-
-        for command in sql_commands.split(";"):
-            command = command.strip()
-            if command:
-                cursor.execute(command)
+        sql_commands = read_commands_from_file(LOAD_DATA_FPATH)
+        for command in sql_commands:
+            cursor.execute(command)
 
         conn.commit()
         print("Sample data loaded successfully.")
@@ -79,9 +74,31 @@ def load_data():
         cursor.close()
         conn.close()
 
+def create_views():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    try:
+        sql_commands = read_commands_from_file(CREATE_VIEW_FPATH)
+        for command in sql_commands:
+            cursor.execute(command)
+
+        conn.commit()
+        print("Views created successfully.")
+
+    except Exception as e:
+        conn.rollback()
+        print("Error creating views:", e)
+
+    finally:
+        cursor.close()
+        conn.close()
+
 init_database()
 load_data()
+create_views()
 app.register_blueprint(anime_bp)
+app.register_blueprint(auth_bp)
 
 if __name__ == "__main__":
     app.run(port=5050, debug=True)

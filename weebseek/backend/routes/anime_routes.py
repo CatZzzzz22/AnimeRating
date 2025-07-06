@@ -4,93 +4,9 @@ from constants import INIT_DB_FPATH, LOAD_DATA_FPATH
 
 anime_bp = Blueprint("anime", __name__)
 
-def read_commands_from_file(fpath):
-    sql_commands = []
-    try:
-        with open(fpath, "r") as f:
-            lines = f.read()
-
-        for command in lines.split(";"):
-            command = command.strip()
-            if command:
-                sql_commands.append(command)
-
-        return sql_commands
-    
-    except Exception as e:
-        print("Error while reading commands from file:", e)
-        return sql_commands
-
-## Create the database and schemas. Should all be created when you starting running the app.
-## Test if tables are created:
-##    1. run Flask app with debug mode
-##    2. open another terminal and run: 
-##       curl -X POST http://localhost:5050/api/anime/create-tables
-## should see: {"message": "DB and tables created successfully."}
-@anime_bp.route("/api/anime/create-tables", methods=["POST"])
-def create_tables():
-    conn = get_db_connection()
-    cursor = conn.cursor()
-
-    try:
-        sql_commands = read_commands_from_file(INIT_DB_FPATH)
-
-        if sql_commands:
-            for command in sql_commands:
-                cursor.execute(command)
-
-            conn.commit()
-            return jsonify({"message": "DB and tables created successfully."}), 201
-        else:
-            raise Exception("No SQL commands found in file or the file path is wrong.")
-
-    except Exception as e:
-        print("Error while creating DB and tables:", e)
-        conn.rollback()
-        return jsonify({"error": str(e)}), 500
-    
-    finally:
-        cursor.close()
-        conn.close()
-
-## Load data to schemas. Should already be loaded when you start running the app.
-## Test if data is loaded:
-##    1. run Flask app with debug mode
-##    2. open another terminal and run: 
-##       curl -X POST http://localhost:5050/api/anime/load-data
-## should see: {"message": "Load data successfully."}
-@anime_bp.route("/api/anime/load-data", methods=["POST"])
-def load_data():
-    conn = get_db_connection()
-    cursor = conn.cursor()
-
-    try:
-        sql_commands = read_commands_from_file(LOAD_DATA_FPATH)
-
-        if sql_commands:
-            for command in sql_commands:
-                cursor.execute(command)
-            
-            conn.commit()
-            return jsonify({"message": "Load data successfully."}), 201
-        else:
-            raise Exception("No SQL commands found in file or the file path is wrong.")
-    
-    except Exception as e:
-        print("Error while loading data:", e)
-        conn.rollback()
-        return jsonify({"error": str(e)}), 500
-    
-    finally:
-        cursor.close()
-        conn.close()
-
-# Example API requests:
-# GET /api/anime?sort_by=rating&order=desc
-# GET /api/anime?sort_by=title&order=asc
-# GET /api/anime
-@anime_bp.route("/api/anime", methods=["GET"])
-def get_anime():
+## Sort anime by aid by default. Can be sorted by score or aired once specified.
+@anime_bp.route("/api/anime/sort", methods=["GET"])
+def sort_anime():
     # Read query parameters from the URL
     sort_by = request.args.get("sort_by", default="aid")
     order = request.args.get("order", default="asc")
@@ -105,10 +21,113 @@ def get_anime():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
-    # Create the query with validated values
-    query = f"SELECT * FROM anime ORDER BY {sort_by} {order.upper()}"
-    cursor.execute(query)
-    results = cursor.fetchall()
-    conn.close()
+    try:
+        query = f"SELECT * FROM Anime_genre ORDER BY {sort_by} {order.upper()}"
+        cursor.execute(query)
+        results = cursor.fetchall()
 
-    return jsonify(results)
+        ## If anime result is empty
+        if not results:
+            return jsonify({"message": "No anime found."}), 200
+
+        return jsonify(results), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+    finally:
+        cursor.close()
+        conn.close()
+
+## Filter anime by genre or type
+@anime_bp.route("/api/anime/filter", methods=["GET"])
+def filter_anime():
+    filter_by = request.args.get("filter_by", default="genre")
+    genre = request.args.get("genre")
+    anime_type = request.args.get("type")
+    allowed_fields = ["genre", "type"]
+    if filter_by not in allowed_fields:
+        filter_by = "genre"
+    
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    try:
+        if filter_by == "genre":
+            if not genre:
+                return jsonify({"error": "Genre is required for genre filtering"}), 400
+
+            query = f"SELECT * FROM Anime_genre WHERE LOWER(gname) = LOWER(%s)"
+            cursor.execute(query, (genre,))
+        else:
+            if not anime_type:
+                return jsonify({"error": "Type is required for anime type filtering"}), 400
+            query = f"SELECT * FROM Anime_genre WHERE LOWER(type) = LOWER(%s)"
+            cursor.execute(query, (anime_type,))
+        
+        results = cursor.fetchall()
+
+        ## If anime result is empty
+        if not results:
+            return jsonify({"message": "No anime found."}), 200
+        
+        return jsonify(results), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+    finally:
+        cursor.close()
+        conn.close()
+
+## Access all available genre
+@anime_bp.route("/api/anime/genre", methods=["GET"])
+def genre():
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    try:
+        query = f"SELECT * FROM Genre ORDER BY gname ASC"
+        cursor.execute(query)
+        genres = cursor.fetchall()
+        
+        ## If genre result is empty
+        if not genres:
+            return jsonify({"message": "No genre found."}), 200
+        
+        return jsonify(genres), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+    finally:
+        cursor.close()
+        conn.close()
+
+
+## Search anime by name
+@anime_bp.route("/api/anime/search", methods=["GET"])
+def search_anime():
+    name = request.args.get("aname")
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    try:
+        query = f"SELECT * FROM Anime_genre WHERE LOWER(aname) LIKE %s"
+        cursor.execute(query, (f"%{name.lower()}%",))
+        results = cursor.fetchall()
+
+        ## If search result is empty
+        if not results:
+            return jsonify({"message": "No anime found."}), 200
+        
+        return jsonify(results), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+    finally:
+        cursor.close()
+        conn.close()
+
