@@ -152,3 +152,53 @@ users_output = '../../production_cleaned_data/user.csv'
 users_df.to_csv(users_output, index=False)
 print(f"Cleaned Users CSV written to {users_output} with {len(users_df)} records.")
 
+
+##### IMPORT & CLEAN USER–SCORE DATA #####
+
+scores_input = '../../production_raw_data/user_score_production.csv'
+scores_df = pd.read_csv(scores_input)
+scores_df.columns = scores_df.columns.str.strip()
+
+scores_df['uid'] = scores_df['user_id'].astype('category').cat.codes + 1
+scores_df['aid'] = scores_df['anime_id'].astype('category').cat.codes + 1
+
+# Generate a daily ratedDate starting 2024-04-01
+start = pd.to_datetime('2000-01-01')
+scores_df['ratedDate'] = [start + pd.Timedelta(days=i) for i in range(len(scores_df))]
+
+# Rename rating
+scores_df['score'] = scores_df['rating'].astype(float)
+
+# Select & reorder
+user_scores_df = scores_df[['uid', 'aid', 'ratedDate', 'score']]
+
+# Write cleaned user scores CSV
+scores_output = '../../production_cleaned_data/rating.csv'
+user_scores_df.to_csv(scores_output, index=False)
+print(f"Cleaned User Scores CSV written to {scores_output} with {len(user_scores_df)} records.")
+
+
+##### GENERATE WATCH LIST #####
+
+scores_input = '../../production_raw_data/user_score_production.csv'
+scores_df = pd.read_csv(scores_input)
+scores_df.columns = scores_df.columns.str.strip()
+
+# Map to your internal codes (must match the mapping used for scores)
+scores_df['uid'] = scores_df['user_id'].astype('category').cat.codes + 1
+scores_df['aid'] = scores_df['anime_id'].astype('category').cat.codes + 1
+
+# Select and dedupe just the uid/aid pairs
+watchlist_df = (
+    scores_df[['uid', 'aid']]
+    .drop_duplicates()
+    .reset_index(drop=True)
+)
+
+# Write out the watch list
+watchlist_output = '../../production_cleaned_data/watchlist.csv'
+watchlist_df.to_csv(watchlist_output, index=False)
+print(f"Watch List CSV written to {watchlist_output} with {len(watchlist_df)} entries.")
+
+
+
