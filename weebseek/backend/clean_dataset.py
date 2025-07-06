@@ -45,7 +45,7 @@ anime_df['episodes'] = (
 anime_df['aired'] = pd.to_datetime(anime_df['aired'], errors='coerce').dt.date
 
 # Add numRating and write the cleaned anime CSV
-anime_df['numRating'] = 100
+anime_df['numRating'] = 3
 anime_output = '../../production_cleaned_data/anime.csv'
 anime_df.to_csv(anime_output, index=False)
 print(f"Cleaned Anime CSV written to {anime_output} with {len(anime_df)} records.")
