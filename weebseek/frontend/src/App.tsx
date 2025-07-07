@@ -8,9 +8,10 @@ import { Alert, AppBar, Box, Button, CircularProgress, Container, FormControl, I
 import GenreFilter from './components/Filters';
 import TypeFilter from './components/Filters/TypeFilter';
 import AuthModal from './components/Auth';
+import { useAuth } from './contexts/AuthContext';
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { user, loading: authLoading, logout, checkSession } = useAuth();
   const [authModalOpen, setAuthModalOpen] = useState(false);
 
   const [loading, setLoading] = useState<boolean>(false);
@@ -61,42 +62,18 @@ function App() {
     setSortOrder(prev => (prev === 'asc' ? 'desc' : 'asc'));
   }
 
-  const handleLogout = async () => {
-    await apiFetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
-    setIsLoggedIn(false);
-  }
-
-  // checks if there is existing cookie
   useEffect(() => {
-    (async () => {
-      try {
-        const me = await apiFetch('/api/auth/me', { credentials: 'include' });
-
-        if (!me.ok) {
-          setIsLoggedIn(false);
-          return;
-        };
-
-        const body = await me.json();
-        if (body.cookie) {
-          setIsLoggedIn(true);
-          return;
-        }
-
-        setIsLoggedIn(false);
-      } catch {
-        setIsLoggedIn(false);
-      }
-    })();
-  }, []);
-
-  useEffect(() => {
+    checkSession();
     loadGenres();
   }, []);
 
   useEffect(() => {
     fetchAnime();
   }, [sortBy, sortOrder, selectedGenre, selectedType])
+
+  if (authLoading) {
+    return <CircularProgress />;
+  }
 
   return (
     <>
@@ -105,10 +82,13 @@ function App() {
           <Typography variant='h6' sx={{ flexGrow: 1 }}>
             Weebseek
           </Typography>
-          {isLoggedIn ? (
-            <Button color="inherit" onClick={handleLogout}>
-              Logout
-            </Button>
+          {user ? (
+            <>
+              <Typography sx={{ mr: 2 }}>Hi, {user.username}</Typography>
+              <Button color="inherit" onClick={logout}>
+                Logout
+              </Button>
+            </>
           ) : (
             <Button color='inherit' onClick={() => setAuthModalOpen(true)}>
               Login / Register
@@ -160,7 +140,6 @@ function App() {
       <AuthModal
         open={authModalOpen}
         onClose={() => setAuthModalOpen(false)}
-        onSuccess={() => setIsLoggedIn(true)}
       />
     </>
   )
