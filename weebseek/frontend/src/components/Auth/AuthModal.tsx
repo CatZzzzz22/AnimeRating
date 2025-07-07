@@ -1,60 +1,59 @@
-import { Alert, Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Tab, Tabs, TextField } from "@mui/material";
-import { useState } from "react";
-import { apiFetch } from "../../helpers";
+import React, { useState } from "react";
+import {
+  Alert,
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Tab,
+  Tabs,
+  TextField,
+} from "@mui/material";
+import { useAuth } from "../../contexts/AuthContext";
 
 interface Props {
   open: boolean;
   onClose: () => void;
-  onSuccess: () => void;
 }
 
-const AuthModal = ({ open, onClose, onSuccess }: Props) => {
-  const [mode, setMode] = useState<'login' | 'register'>('login');
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirm, setConfirm] = useState('');
+const AuthModal: React.FC<Props> = ({ open, onClose }) => {
+  const { login, register } = useAuth();
+  const [mode, setMode] = useState<"login" | "register">("login");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
     setError(null);
-    if (mode === 'register' && password !== confirm) {
-      setError("Password does not match");
+    if (mode === "register" && password !== confirm) {
+      setError("Passwords do not match");
       return;
     }
 
     setLoading(true);
     try {
-      const res = await apiFetch<{
-        message: string;
-        user_id: number;
-        username: string;
-      }>(
-        mode === 'login' ? '/api/auth/login' : '/api/auth/register',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({ username, password }),
-        }
-      );
-      console.log(res);
-
-      onSuccess();
+      if (mode === "login") {
+        await login(username, password);
+      } else {
+        await register(username, password);
+      }
       onClose();
-
-      setUsername('');
-      setPassword('');
-      setConfirm('');
+      setUsername("");
+      setPassword("");
+      setConfirm("");
     } catch (e: any) {
-      setError(e.message || 'Unknown error');
+      setError(e.message || "Unknown error");
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
+    <Dialog open={open} onClose={() => !loading && onClose()} maxWidth="xs" fullWidth>
       <DialogTitle>
         <Tabs
           value={mode}
@@ -76,24 +75,27 @@ const AuthModal = ({ open, onClose, onSuccess }: Props) => {
           <TextField
             label="Username"
             value={username}
-            onChange={e => setUsername(e.target.value)}
+            onChange={(e) => setUsername(e.target.value)}
             fullWidth
             autoFocus
+            disabled={loading}
           />
           <TextField
             label="Password"
             type="password"
             value={password}
-            onChange={e => setPassword(e.target.value)}
+            onChange={(e) => setPassword(e.target.value)}
             fullWidth
+            disabled={loading}
           />
-          {mode === 'register' && (
+          {mode === "register" && (
             <TextField
               label="Confirm Password"
               type="password"
               value={confirm}
-              onChange={e => setConfirm(e.target.value)}
+              onChange={(e) => setConfirm(e.target.value)}
               fullWidth
+              disabled={loading}
             />
           )}
         </Box>
@@ -106,13 +108,18 @@ const AuthModal = ({ open, onClose, onSuccess }: Props) => {
         <Button
           variant="contained"
           onClick={handleSubmit}
-          disabled={loading || !username || !password || (mode === 'register' && !confirm)}
+          disabled={
+            loading ||
+            !username ||
+            !password ||
+            (mode === "register" && !confirm)
+          }
         >
-          {mode === 'login' ? 'Login' : 'Register'}
+          {mode === "login" ? "Login" : "Register"}
         </Button>
       </DialogActions>
     </Dialog>
-  )
-}
+  );
+};
 
-export default AuthModal
+export default AuthModal;
