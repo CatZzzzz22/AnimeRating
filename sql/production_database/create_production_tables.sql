@@ -67,3 +67,8 @@ CREATE TABLE Watchlist (
   FOREIGN KEY (uid) REFERENCES User(uid) ON DELETE CASCADE,
   FOREIGN KEY (aid) REFERENCES Anime(aid) ON DELETE CASCADE
 );
+
+CREATE INDEX AnimeType ON Anime(type);
+CREATE INDEX AnimeAired ON Anime(aired);
+CREATE INDEX UserAge ON User(age);
+CREATE INDEX UserLocation ON User(location);
