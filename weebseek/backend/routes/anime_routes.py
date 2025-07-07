@@ -26,7 +26,7 @@ def query_anime():
     values = []
 
     if genre:
-        filters.append("LOWER(gname) = LOWER(%s)")
+        filters.append("FIND_IN_SET(LOWER(%s), LOWER(genres)) > 0")
         values.append(genre)
     if anime_type:
         filters.append("LOWER(type) = LOWER(%s)")
