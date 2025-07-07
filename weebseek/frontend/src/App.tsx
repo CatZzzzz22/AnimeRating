@@ -31,7 +31,11 @@ function App() {
   const loadGenres = async () => {
     try {
       const data = await apiFetch<GenreType[]>('/api/anime/genre');
-      setGenres(data);
+      if (!Array.isArray(data)) {
+        setGenres([]);
+      } else {
+        setGenres(data);
+      }
     } catch (e) {
       console.error('Could not load Genres', e);
     }
@@ -40,7 +44,11 @@ function App() {
   const loadTypes = async () => {
     try {
       const data = await apiFetch<string[]>('/api/anime/type');
-      setTypes(data);
+      if (!Array.isArray(data)) {
+        setTypes([]);
+      } else {
+        setTypes(data);
+      }
     } catch (e) {
       console.error('Could not load Types', e);
     }
