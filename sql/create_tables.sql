@@ -17,7 +17,8 @@ CREATE TABLE Anime (
   type ENUM('TV', 'Movie', 'OVA', 'ONA', 'Special', 'Music', 'Unknown') NOT NULL,
   episodes INT,
   aired DATE,
-  imageURL VARCHAR(255)
+  imageURL VARCHAR(255),
+  numRaing INT
 );
 
 -- Create Genre table
