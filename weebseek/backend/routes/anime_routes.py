@@ -86,6 +86,29 @@ def genre():
         cursor.close()
         conn.close()
 
+## Access all available types
+@anime_bp.route("/api/anime/type", methods=["GET"])
+def types():
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    try:
+        query = f"SELECT DISTINCT type FROM Anime"
+        cursor.execute(query)
+        types = cursor.fetchall()
+        
+        ## If type result is empty
+        if not types:
+            return jsonify({"message": "No types found."}), 200
+        
+        return jsonify([row["type"] for row in types]), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+    finally:
+        cursor.close()
+        conn.close()
 
 ## Search anime by name
 @anime_bp.route("/api/anime/search", methods=["GET"])
