@@ -28,8 +28,7 @@ function App() {
 
   const loadGenres = async () => {
     try {
-      // const data = await apiFetch<string[]>('/api/genres');
-      const data = ['Romance', 'Action'];
+      const data = await apiFetch<string[]>('/api/anime/genre');
       setGenres(data);
     } catch (e) {
       console.error('Could not load Genres', e);
@@ -41,7 +40,7 @@ function App() {
     setError(null);
 
     try {
-      let url = `/api/anime?sort_by=${sortBy}&order=${sortOrder}`;
+      let url = `/api/anime/sort?sort_by=${sortBy}&order=${sortOrder}`;
       if (selectedGenre) url += `&genre=${encodeURIComponent(selectedGenre)}`;
       if (selectedType) url += `&type=${encodeURIComponent(selectedType)}`;
 
@@ -63,19 +62,19 @@ function App() {
   }
 
   const handleLogout = async () => {
-    await fetch('/api/logout', { method: 'POST', credentials: 'include' });
+    await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
     setIsLoggedIn(false);
   }
 
-  // will need once cookies implemented - checks if there is existing cookie
-  // useEffect(() => {
-  //   (async () => {
-  //     try {
-  //       const me = await fetch('/api/check', { credentials: 'include' });
-  //       if (me.ok) setIsLoggedIn(true);
-  //     } catch { }
-  //   })();
-  // }, []);
+  // checks if there is existing cookie
+  useEffect(() => {
+    (async () => {
+      try {
+        const me = await fetch('/api/anime/me', { credentials: 'include' });
+        if (me.ok) setIsLoggedIn(true);
+      } catch { }
+    })();
+  }, []);
 
   useEffect(() => {
     loadGenres();
