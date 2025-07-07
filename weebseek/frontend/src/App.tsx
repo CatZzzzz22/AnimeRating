@@ -23,6 +23,7 @@ function App() {
   const [genres, setGenres] = useState<GenreType[]>([]);
   const [selectedGenre, setSelectedGenre] = useState<string>('');
 
+  const [types, setTypes] = useState<string[]>([]);
   const [selectedType, setSelectedType] = useState<string>('');
 
   const [animeList, setAnimeList] = useState<AnimeType[]>([]);
@@ -33,6 +34,15 @@ function App() {
       setGenres(data);
     } catch (e) {
       console.error('Could not load Genres', e);
+    }
+  }
+
+  const loadTypes = async () => {
+    try {
+      const data = await apiFetch<string[]>('/api/anime/type');
+      setTypes(data);
+    } catch (e) {
+      console.error('Could not load Types', e);
     }
   }
 
@@ -69,6 +79,7 @@ function App() {
   useEffect(() => {
     checkSession();
     loadGenres();
+    loadTypes();
   }, []);
 
   useEffect(() => {
@@ -127,6 +138,7 @@ function App() {
           />
 
           <TypeFilter
+            types={types}
             selectedType={selectedType}
             onChange={setSelectedType}
           />

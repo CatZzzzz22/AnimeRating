@@ -1,12 +1,13 @@
 import { FormControl, InputLabel, MenuItem, Select, type SelectChangeEvent } from "@mui/material";
-import { TypeOptions } from "../../types";
 
 interface Props {
+  types: string[];
   selectedType: string;
   onChange: (type: string) => void;
 };
 
 const TypeFilter = ({
+  types,
   selectedType,
   onChange,
 }: Props) => {
@@ -24,7 +25,7 @@ const TypeFilter = ({
         onChange={handleChange}
       >
         <MenuItem value="">All Types</MenuItem>
-        {TypeOptions.map((t) => (
+        {types.map((t) => (
           <MenuItem key={t} value={t}>
             {t}
           </MenuItem>
