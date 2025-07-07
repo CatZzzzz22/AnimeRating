@@ -10,7 +10,7 @@ echo
 # Define file paths
 SQL_FILE="$1"
 OUT_FILE="$2"
-DB_NAME="SampleAnimeRatingApp"
+DB_NAME="ProductionAnimeRatingApp"
 
 # Run SQL file and capture output
 echo "Running $SQL_FILE and writing output to $OUT_FILE..."
