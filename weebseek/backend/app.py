@@ -8,7 +8,7 @@ from constants import REQUIRED_TABLES, INIT_DB_FPATH, CREATE_VIEW_FPATH, LOAD_DA
 
 app = Flask("WeebSeek")
 app.secret_key = "supersecretkey"
-CORS(app, resources={r"/api/*": {"origins": "http://localhost:5173"}})
+CORS(app, supports_credentials=True, resources={r"/api/*": {"origins": "http://localhost:5173"}})
 
 # Create the database and tables automatically
 def init_database():
