@@ -17,8 +17,8 @@ def init_database():
     conn = get_db_connection(with_db=False)
     cursor = conn.cursor()
 
-    cursor.execute("CREATE DATABASE IF NOT EXISTS ProductionAnimeRatingApp")
-    cursor.execute("USE ProductionAnimeRatingApp")
+    cursor.execute("CREATE DATABASE IF NOT EXISTS SampleAnimeRatingApp")
+    cursor.execute("USE SampleAnimeRatingApp")
     cursor.execute("SHOW TABLES")
     existing_tables = set(row[0] for row in cursor.fetchall())
     if REQUIRED_TABLES.issubset(existing_tables):
@@ -26,7 +26,7 @@ def init_database():
         return
 
     try:
-        sql_commands = read_commands_from_file(INIT_PRODUCTION_DB_FPATH)
+        sql_commands = read_commands_from_file(INIT_SAMPLE_DB_FPATH)
         for command in sql_commands:
             cursor.execute(command)
 
@@ -61,7 +61,7 @@ def load_data():
             return
 
         # Load SQL from file
-        sql_commands = read_commands_from_file(LOAD_PRODUCTION_DATA_FPATH)
+        sql_commands = read_commands_from_file(LOAD_SAMPLE_DATA_FPATH)
         for command in sql_commands:
             cursor.execute(command)
 
