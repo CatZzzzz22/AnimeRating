@@ -4,7 +4,9 @@ from routes.auth_routes import auth_bp
 from routes.anime_routes import anime_bp
 from db.connection import get_db_connection
 from utils.sql_utils import read_commands_from_file
-from constants import REQUIRED_TABLES, INIT_DB_FPATH, CREATE_VIEW_FPATH, LOAD_DATA_FPATH
+from constants import REQUIRED_TABLES, CREATE_VIEW_FPATH
+from constants import INIT_SAMPLE_DB_FPATH, LOAD_SAMPLE_DATA_FPATH
+from constants import INIT_PRODUCTION_DB_FPATH, LOAD_PRODUCTION_DATA_FPATH
 
 app = Flask("WeebSeek")
 app.secret_key = "supersecretkey"
@@ -15,8 +17,8 @@ def init_database():
     conn = get_db_connection(with_db=False)
     cursor = conn.cursor()
 
-    cursor.execute("CREATE DATABASE IF NOT EXISTS AnimeRatingApp")
-    cursor.execute("USE AnimeRatingApp")
+    cursor.execute("CREATE DATABASE IF NOT EXISTS ProductionAnimeRatingApp")
+    cursor.execute("USE ProductionAnimeRatingApp")
     cursor.execute("SHOW TABLES")
     existing_tables = set(row[0] for row in cursor.fetchall())
     if REQUIRED_TABLES.issubset(existing_tables):
@@ -24,7 +26,7 @@ def init_database():
         return
 
     try:
-        sql_commands = read_commands_from_file(INIT_DB_FPATH)
+        sql_commands = read_commands_from_file(INIT_PRODUCTION_DB_FPATH)
         for command in sql_commands:
             cursor.execute(command)
 
@@ -59,12 +61,12 @@ def load_data():
             return
 
         # Load SQL from file
-        sql_commands = read_commands_from_file(LOAD_DATA_FPATH)
+        sql_commands = read_commands_from_file(LOAD_PRODUCTION_DATA_FPATH)
         for command in sql_commands:
             cursor.execute(command)
 
         conn.commit()
-        print("Sample data loaded successfully.")
+        print("Data loaded successfully.")
 
     except Exception as e:
         conn.rollback()

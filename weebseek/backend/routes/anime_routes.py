@@ -1,6 +1,5 @@
 from flask import Blueprint, jsonify, request
 from db.connection import get_db_connection
-from constants import INIT_DB_FPATH, LOAD_DATA_FPATH
 
 anime_bp = Blueprint("anime", __name__)
 

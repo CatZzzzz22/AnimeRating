@@ -1,5 +1,5 @@
-CREATE DATABASE IF NOT EXISTS AnimeRatingApp;
-USE AnimeRatingApp;
+CREATE DATABASE IF NOT EXISTS SampleAnimeRatingApp;
+USE SampleAnimeRatingApp;
 
 DROP TABLE IF EXISTS AnimeGenre;
 DROP TABLE IF EXISTS Genre;

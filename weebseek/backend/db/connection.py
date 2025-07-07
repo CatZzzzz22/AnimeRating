@@ -16,6 +16,6 @@ def get_db_connection(with_db=True):
         raise RuntimeError("DB_USER or DB_PASSWORD not set in environment")
 
     if with_db:
-        config["database"] = "AnimeRatingApp"
+        config["database"] = "ProductionAnimeRatingApp"
 
     return mysql.connector.connect(**config)
