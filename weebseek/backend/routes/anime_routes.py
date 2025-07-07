@@ -13,10 +13,9 @@ def query_anime():
     order = request.args.get("order", default="asc")
     allowed_ordering_fields = ["score", "aired"]  # users can sort Anime table by rating or aired
     
-    filter_by = request.args.get("filter_by", default="genre")
+    # users can filter Anime table by genre or type
     genre = request.args.get("genre")
     anime_type = request.args.get("type")
-    allowed_filtering_fields = ["genre", "type"] # users can filter Anime table by genre or type
 
     if sort_by not in allowed_ordering_fields:
         sort_by = "aid"
@@ -26,10 +25,10 @@ def query_anime():
     filters = []
     values = []
 
-    if (filter_by == "genre" or filter_by not in allowed_filtering_fields) and genre:
+    if genre:
         filters.append("LOWER(gname) = LOWER(%s)")
         values.append(genre)
-    elif filter_by == "type" and anime_type:
+    if anime_type:
         filters.append("LOWER(type) = LOWER(%s)")
         values.append(anime_type)
 
