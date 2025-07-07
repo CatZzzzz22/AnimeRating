@@ -46,7 +46,11 @@ function App() {
       if (selectedType) url += `&type=${encodeURIComponent(selectedType)}`;
 
       const data = await apiFetch<AnimeType[]>(url);
-      setAnimeList(data);
+      if (!Array.isArray(data)) {
+        setAnimeList([]);
+      } else {
+        setAnimeList(data);
+      }
     } catch (e: any) {
       setError(e.message);
     } finally {
