@@ -7,7 +7,7 @@ FIELDS TERMINATED BY ','
 ENCLOSED BY '"' 
 LINES TERMINATED BY '\n'
 IGNORE 1 LINES
-(aid, aname, score, synopsis, type, episodes, aired, imageURL, numRaing);
+(aid, aname, score, synopsis, type, episodes, aired, imageURL, numRating);
 
 -- Load Genre table
 LOAD DATA LOCAL INFILE '../../production_cleaned_data/genre.csv'

@@ -18,7 +18,7 @@ CREATE TABLE Anime (
   episodes INT,
   aired DATE,
   imageURL VARCHAR(255),
-  numRaing INT
+  numRating INT
 );
 
 -- Create Genre table
