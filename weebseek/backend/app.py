@@ -10,7 +10,7 @@ from constants import INIT_PRODUCTION_DB_FPATH, LOAD_PRODUCTION_DATA_FPATH
 
 app = Flask("WeebSeek")
 app.secret_key = "supersecretkey"
-CORS(app, resources={r"/api/*": {"origins": "http://localhost:5173"}})
+CORS(app, supports_credentials=True, resources={r"/api/*": {"origins": "http://localhost:5173"}})
 
 # Create the database and tables automatically
 def init_database():

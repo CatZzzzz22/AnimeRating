@@ -1,5 +1,6 @@
 import { Alert, Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Tab, Tabs, TextField } from "@mui/material";
 import { useState } from "react";
+import { apiFetch } from "../../helpers";
 
 interface Props {
   open: boolean;
@@ -24,8 +25,12 @@ const AuthModal = ({ open, onClose, onSuccess }: Props) => {
 
     setLoading(true);
     try {
-      const res = await fetch(
-        mode === 'login' ? '/api/login' : '/api/register',
+      const res = await apiFetch<{
+        message: string;
+        user_id: number;
+        username: string;
+      }>(
+        mode === 'login' ? '/api/auth/login' : '/api/auth/register',
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -33,10 +38,7 @@ const AuthModal = ({ open, onClose, onSuccess }: Props) => {
           body: JSON.stringify({ username, password }),
         }
       );
-
-      if (!res.ok) {
-        throw new Error(res.statusText);
-      }
+      console.log(res);
 
       onSuccess();
       onClose();

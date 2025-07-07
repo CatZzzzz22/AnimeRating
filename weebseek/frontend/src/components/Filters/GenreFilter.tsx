@@ -1,7 +1,8 @@
 import { FormControl, InputLabel, MenuItem, Select, type SelectChangeEvent } from "@mui/material";
+import type { GenreType } from "../../types";
 
 interface Props {
-  genres: string[];
+  genres: GenreType[];
   selectedGenre: string;
   onChange: (newSelection: string) => void;
 }
@@ -21,9 +22,9 @@ const GenreFilter = ({ genres, selectedGenre, onChange }: Props) => {
         onChange={handleChange}
       >
         <MenuItem value="">All Genres</MenuItem>
-        {genres.map((g) => (
-          <MenuItem key={g} value={g}>
-            {g}
+        {genres.map(({ gid, gname }) => (
+          <MenuItem key={gid} value={gname}>
+            {gname}
           </MenuItem>
         ))}
       </Select>

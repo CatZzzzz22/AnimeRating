@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { apiFetch } from './helpers';
-import type { AnimeType, SortOrder, SortType } from './types';
+import type { AnimeType, GenreType, SortOrder, SortType } from './types';
 
 import './App.css'
 import AnimeList from './components/AnimeList';
@@ -19,7 +19,7 @@ function App() {
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
   const [sortBy, setSortBy] = useState<SortType>("aired");
 
-  const [genres, setGenres] = useState<string[]>([]);
+  const [genres, setGenres] = useState<GenreType[]>([]);
   const [selectedGenre, setSelectedGenre] = useState<string>('');
 
   const [selectedType, setSelectedType] = useState<string>('');
@@ -28,7 +28,7 @@ function App() {
 
   const loadGenres = async () => {
     try {
-      const data = await apiFetch<string[]>('/api/anime/genre');
+      const data = await apiFetch<GenreType[]>('/api/anime/genre');
       setGenres(data);
     } catch (e) {
       console.error('Could not load Genres', e);
@@ -62,7 +62,7 @@ function App() {
   }
 
   const handleLogout = async () => {
-    await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+    await apiFetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
     setIsLoggedIn(false);
   }
 
@@ -70,9 +70,23 @@ function App() {
   useEffect(() => {
     (async () => {
       try {
-        const me = await fetch('/api/anime/me', { credentials: 'include' });
-        if (me.ok) setIsLoggedIn(true);
-      } catch { }
+        const me = await apiFetch('/api/auth/me', { credentials: 'include' });
+
+        if (!me.ok) {
+          setIsLoggedIn(false);
+          return;
+        };
+
+        const body = await me.json();
+        if (body.cookie) {
+          setIsLoggedIn(true);
+          return;
+        }
+
+        setIsLoggedIn(false);
+      } catch {
+        setIsLoggedIn(false);
+      }
     })();
   }, []);
 

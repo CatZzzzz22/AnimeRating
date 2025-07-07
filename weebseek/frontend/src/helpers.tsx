@@ -1,8 +1,8 @@
 const API_BASE = "http://localhost:5050";
 
-export async function apiFetch<T = any>(path: string): Promise<T> {
+export async function apiFetch<T = any>(path: string, init: RequestInit = {}): Promise<T> {
   const url = `${API_BASE}${path}`;
-  const res = await fetch(url);
+  const res = await fetch(url, init);
 
   if (!res.ok) {
     let errorMsg: string;
