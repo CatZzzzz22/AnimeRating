@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { apiFetch } from './helpers';
-import type { AnimeType, SortOrder, SortType } from './types';
+import type { AnimeType, GenreType, SortOrder, SortType } from './types';
 
 import './App.css'
 import AnimeList from './components/AnimeList';
@@ -19,7 +19,7 @@ function App() {
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
   const [sortBy, setSortBy] = useState<SortType>("aired");
 
-  const [genres, setGenres] = useState<string[]>([]);
+  const [genres, setGenres] = useState<GenreType[]>([]);
   const [selectedGenre, setSelectedGenre] = useState<string>('');
 
   const [selectedType, setSelectedType] = useState<string>('');
@@ -28,8 +28,7 @@ function App() {
 
   const loadGenres = async () => {
     try {
-      // const data = await apiFetch<string[]>('/api/genres');
-      const data = ['Romance', 'Action'];
+      const data = await apiFetch<GenreType[]>('/api/anime/genre');
       setGenres(data);
     } catch (e) {
       console.error('Could not load Genres', e);
@@ -41,7 +40,7 @@ function App() {
     setError(null);
 
     try {
-      let url = `/api/anime?sort_by=${sortBy}&order=${sortOrder}`;
+      let url = `/api/anime/sort?sort_by=${sortBy}&order=${sortOrder}`;
       if (selectedGenre) url += `&genre=${encodeURIComponent(selectedGenre)}`;
       if (selectedType) url += `&type=${encodeURIComponent(selectedType)}`;
 
@@ -63,19 +62,33 @@ function App() {
   }
 
   const handleLogout = async () => {
-    await fetch('/api/logout', { method: 'POST', credentials: 'include' });
+    await apiFetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
     setIsLoggedIn(false);
   }
 
-  // will need once cookies implemented - checks if there is existing cookie
-  // useEffect(() => {
-  //   (async () => {
-  //     try {
-  //       const me = await fetch('/api/check', { credentials: 'include' });
-  //       if (me.ok) setIsLoggedIn(true);
-  //     } catch { }
-  //   })();
-  // }, []);
+  // checks if there is existing cookie
+  useEffect(() => {
+    (async () => {
+      try {
+        const me = await apiFetch('/api/auth/me', { credentials: 'include' });
+
+        if (!me.ok) {
+          setIsLoggedIn(false);
+          return;
+        };
+
+        const body = await me.json();
+        if (body.cookie) {
+          setIsLoggedIn(true);
+          return;
+        }
+
+        setIsLoggedIn(false);
+      } catch {
+        setIsLoggedIn(false);
+      }
+    })();
+  }, []);
 
   useEffect(() => {
     loadGenres();

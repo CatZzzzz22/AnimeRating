@@ -10,6 +10,11 @@ export interface AnimeType {
   imageURL?: string;
 }
 
+export interface GenreType {
+  gid: number,
+  gname: string,
+}
+
 export type SortType = "score" | "aired";
 
 export type SortOrder = "asc" | "desc";
@@ -23,4 +28,3 @@ export const TypeOptions = [
   'Music',
   'Unknown',
 ] as const;
-
