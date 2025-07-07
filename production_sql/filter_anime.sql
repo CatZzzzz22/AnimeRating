@@ -3,6 +3,7 @@ WITH AnimeAggregate AS (Select A.*, G.gname
                                      LEFT JOIN Genre G ON G.gid = AG.gid)
 
 -- Match all anime where genres is romance
-SELECT aname, score, type, gname, synopsis
+SELECT aname, score, type, gname, episode, aired, imageURL, synopsis
 FROM AnimeAggregate
-WHERE LOWER(gname) = 'romance';
+WHERE LOWER(gname) = 'romance'
+LIMIT 10;

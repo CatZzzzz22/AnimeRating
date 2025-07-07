@@ -1,4 +1,4 @@
-USE AnimeRatingApp;
+USE ProductionAnimeRatingApp;
 
 -- Load Anime table
 LOAD DATA LOCAL INFILE '../../production_cleaned_data/anime.csv'

@@ -1,5 +1,5 @@
-CREATE DATABASE IF NOT EXISTS AnimeRatingApp;
-USE AnimeRatingApp;
+CREATE DATABASE IF NOT EXISTS ProductionAnimeRatingApp;
+USE ProductionAnimeRatingApp;
 
 DROP TABLE IF EXISTS AnimeGenre;
 DROP TABLE IF EXISTS Genre;
@@ -18,7 +18,7 @@ CREATE TABLE Anime (
   episodes INT,
   aired DATE,
   imageURL VARCHAR(255),
-  numRaing INT
+  numRating INT
 );
 
 -- Create Genre table
