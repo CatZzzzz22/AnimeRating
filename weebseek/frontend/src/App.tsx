@@ -40,7 +40,7 @@ function App() {
     setError(null);
 
     try {
-      let url = `/api/anime/sort?sort_by=${sortBy}&order=${sortOrder}`;
+      let url = `/api/anime/query?sort_by=${sortBy}&order=${sortOrder}`;
       if (selectedGenre) url += `&genre=${encodeURIComponent(selectedGenre)}`;
       if (selectedType) url += `&type=${encodeURIComponent(selectedType)}`;
 
