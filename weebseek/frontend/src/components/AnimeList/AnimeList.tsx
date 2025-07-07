@@ -7,6 +7,7 @@ interface Props {
 }
 
 const AnimeList = ({ animeList }: Props) => {
+  console.log(animeList)
   return (
     <Grid container spacing={2} gap={3}>
       {animeList.map((anime, index) => (
