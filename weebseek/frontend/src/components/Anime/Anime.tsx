@@ -6,8 +6,7 @@ import {
   CardMedia,
   Typography,
   Stack,
-  Divider,
-  Chip
+  Divider
 } from "@mui/material";
 
 interface Props {
