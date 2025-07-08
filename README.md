@@ -83,6 +83,13 @@ You need two terminals, one for frontend and one for backend, and keep them runn
   - Run the following commands in ```weebseek/backend```:
     ```
     pip3 install -r requirements.txt
+    ```
+    If you haven't locally loaded the cleaned production dataset, run:
+    ```
+    python3 clean_dataset.py
+    ```
+    And then run the app backend:
+    ```
     python3 app.py
     ```
 
