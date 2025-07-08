@@ -95,9 +95,9 @@ You need two terminals, one for frontend and one for backend, and keep them runn
     ```
 
 ### Currently Supported Features
-- Sort animes by rating or aired date
-- Filter animes by name, genres or type
-- Create accounts and log in
+- Sort animes by rating or aired date (/weebseek/backend/routes/anime_routes.py)
+- Filter animes by name, genres or type (/weebseek/backend/routes/anime_routes.py)
+- Create accounts and log in (/weebseek/backend/routes/auth_routes.py)
 - To do:
   - Create watchlists
   - Enable search by name
