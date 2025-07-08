@@ -84,7 +84,7 @@ You need two terminals, one for frontend and one for backend, and keep them runn
     ```
     pip3 install -r requirements.txt
     ```
-    If you haven't locally load the cleaned production dataset, run:
+    If you haven't locally loaded the cleaned production dataset, run:
     ```
     python3 clean_dataset.py
     ```
