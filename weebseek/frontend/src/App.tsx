@@ -63,7 +63,7 @@ function App() {
       if (selectedGenre) url += `&genre=${encodeURIComponent(selectedGenre)}`;
       if (selectedType) url += `&type=${encodeURIComponent(selectedType)}`;
 
-      const data = await apiFetch<AnimeType[]>(url);
+      const data = (await apiFetch<AnimeType[]>(url)).slice(0, 20);
       if (!Array.isArray(data)) {
         setAnimeList([]);
       } else {

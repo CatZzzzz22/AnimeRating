@@ -3,7 +3,7 @@ export interface AnimeType {
   aname: string,
   score: number,
   aired: string,
-  gname: string;
+  genres: string;
   synopsis?: string;
   type?: string;
   episodes?: number;
