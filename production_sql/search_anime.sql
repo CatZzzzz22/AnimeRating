@@ -1,9 +1,13 @@
 -- Match all anime where name contains 'ken'
-WITH AnimeAggregate AS (Select A.*, G.gname
-                        FROM Anime A LEFT JOIN AnimeGenre AG ON A.aid = AG.aid
-                                     LEFT JOIN Genre G ON G.gid = AG.gid)
+With PopulateAnime AS 
+SELECT A.*, GROUP_CONCAT(DISTINCT g.gname ORDER BY g.gname SEPARATOR ', ') as genre
+FROM Anime a join AnimeGenre ag on a.aid = ag.aid
+    join Genre g on g.gid = ag.gid
+GROUP BY
+    a.aid, a.aname, a.score, a.synopsis,
+    a.type, a.episodes, a.aired, a.imageURL, a.numRating
 
 SELECT aname, score, type, gname, episodes, aired, imageURL, synopsis
 FROM AnimeAggregate
 WHERE LOWER(aname) LIKE '%ken%'
-LIMIT 10;
+LIMIT 6;
