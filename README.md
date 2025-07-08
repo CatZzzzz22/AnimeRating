@@ -95,10 +95,11 @@ You need two terminals, one for frontend and one for backend, and keep them runn
 
 ### Currently supported Features
 - Sort animes by rating or aired date
+- Filter animes by name, genres or type
+- Create accounts and log in
 - To do:
-  - Filter animes by name, genres or type
-  - Create accounts and log in
   - Create watchlists
+  - Search anime by name
 
 ## C2 - SQL Code
 All SQL code for this project can be found in ```sql```
