@@ -101,13 +101,13 @@ You need two terminals, one for frontend and one for backend, and keep them runn
   - Create watchlists
 
 ## C2 - SQL Code
-All SQL code for this project can be found in ```sql```
+All SQL code for the application can be found in ```sql```
 
 ## C3 - SQL Queries for Features (test queries over sample data)
-All SQL queries can be found in ```sample_sql```
+All SQL queries over sample data can be found in ```sample_sql```
 
 ## C4 - SQL Queries for Features (test queries over production data)
-(to do for milestone 2)
+All SQL queries over production data can be found in ```product_sql```
 
 ## C5 - Application Code
 All application code can be found in ```weebseek```
