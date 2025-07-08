@@ -69,8 +69,10 @@ CREATE TABLE Watchlist (
 );
 
 CREATE INDEX AnimeType ON Anime(type);
-CREATE INDEX AnimeAired ON Anime(aired);
-CREATE INDEX AnimeScore ON Anime(score);
+CREATE INDEX idx_score_asc  ON Anime(score ASC);
+CREATE INDEX idx_score_desc ON Anime(score DESC);
+CREATE INDEX idx_aired_asc  ON Anime(aired ASC);
+CREATE INDEX idx_aired_desc ON Anime(aired DESC);
 CREATE FULLTEXT INDEX AnimeName ON Anime(aname);
 
 CREATE INDEX UserAge ON User(age);
