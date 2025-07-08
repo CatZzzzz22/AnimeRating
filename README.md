@@ -96,10 +96,11 @@ You need two terminals, one for frontend and one for backend, and keep them runn
 
 ### Currently Supported Features
 - Sort animes by rating or aired date
+- Filter animes by name, genres or type
+- Create accounts and log in
 - To do:
-  - Filter animes by name, genres or type
-  - Create accounts and log in
   - Create watchlists
+  - Enable search by name
  
 ### Generate and Load the Production Dataset
 - The production data were downloaded from MyAnimeList Dataset on Kaggle. The data is then being transformed with clean_dataset.py into appropriate form for loading into the database. We match the attribute names, drop the duplicate records, trim whitespace on string columns, and ensure numeric and date types. We also enforce referential integrity to match with our table schema. The raw data contains 3 downloaded CSV files: anime_production.csv, user_production.csv, user_score_production.csv. The cleaned data contains 6 cleaned and normalized CSV files: anime.csv, genre.csv, animegenre.csv, user.csv, rating.csv, watchlist.csv.
