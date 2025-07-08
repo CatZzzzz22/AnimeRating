@@ -7,7 +7,7 @@ GROUP BY
     a.aid, a.aname, a.score, a.synopsis,
     a.type, a.episodes, a.aired, a.imageURL, a.numRating
 
-SELECT aname, score, type, gname, episodes, aired, imageURL, synopsis
-FROM AnimeAggregate
+SELECT aname, score, type, genre, episodes, aired, imageURL, synopsis
+FROM PopulateAnime
 WHERE LOWER(aname) LIKE '%ken%'
 LIMIT 6;

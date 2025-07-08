@@ -7,7 +7,7 @@ GROUP BY
     a.type, a.episodes, a.aired, a.imageURL, a.numRating
 
 -- Match all anime where genres is romance
-SELECT aname, score, type, gname, episodes, aired, imageURL, synopsis
-FROM AnimeAggregate
+SELECT aname, score, type, genre, episodes, aired, imageURL, synopsis
+FROM PopulateAnime
 WHERE LOWER(gname) = 'romance'
 LIMIT 6;
