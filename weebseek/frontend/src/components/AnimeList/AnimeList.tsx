@@ -18,9 +18,9 @@ const AnimeList = ({ animeList }: Props) => {
   }
 
   return (
-    <Grid container spacing={2} gap={3}>
+    <Grid container spacing={2} gap={3} sx={{ width: "100%", mx: "auto" }}>
       {animeList.map((anime, index) => (
-        <Grid key={index}>
+        <Grid key={index} size={12}>
           <Anime anime={anime} />
         </Grid>
       ))}

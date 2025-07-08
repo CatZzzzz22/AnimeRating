@@ -29,6 +29,7 @@ const Anime = ({ anime }: Props) => {
         borderRadius: 2,
         boxShadow: 1,
         overflow: "hidden",
+        width: "100%"
       }}
     >
       <CardMedia
@@ -89,7 +90,7 @@ const Anime = ({ anime }: Props) => {
               <strong>Genres:</strong>
             </Typography>
 
-            <Typography variant="caption">{anime.gname ?? "N/A"}</Typography>
+            <Typography variant="caption">{anime.genres ?? "N/A"}</Typography>
           </Stack>
         </CardContent>
       </Box>
