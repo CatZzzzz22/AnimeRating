@@ -15,6 +15,7 @@ import { useAuth } from './contexts/AuthContext';
 import { apiFetch } from './helpers';
 import AnimePage from './pages/AnimePage';
 import UserPage from './pages/UserPage';
+import UserProfilePage from './pages/UserProfilePage';
 
 function App() {
   const { user, logout, checkSession, loading: authLoading } = useAuth();
@@ -99,7 +100,7 @@ function App() {
             Weebseek
           </Typography>
           {user && (
-            <Typography sx={{ mr: 10 }}>
+            <Typography sx={{ ml: 10, mr: 2 }}>
               Logged in as {user.username}
             </Typography>
           )}
@@ -166,6 +167,18 @@ function App() {
         <Route
           path="/user"
           element={<UserPage isLoggedIn={!!user} />}
+        />
+        <Route
+          path="/user/:uid"
+          element={
+            <UserProfilePage
+              isLoggedIn={!!user}
+              watchlist={watchlist}
+              toggleWatchlist={toggleWatchlist}
+              ratings={ratings}
+              rateAnime={rateAnime}
+            />
+          }
         />
       </Routes>
 
