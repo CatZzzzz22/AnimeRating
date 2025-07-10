@@ -4,9 +4,12 @@ import Anime from "../Anime";
 
 interface Props {
   animeList: AnimeType[];
+  watchlist: Set<number>;
+  toggleWatchlist: (aid: number) => void;
+  isLoggedIn: boolean;
 }
 
-const AnimeList = ({ animeList }: Props) => {
+const AnimeList = ({ animeList, watchlist, toggleWatchlist, isLoggedIn }: Props) => {
   if (animeList.length === 0) {
     return (
       <Box textAlign="center" sx={{ mt: 4 }}>
@@ -21,7 +24,12 @@ const AnimeList = ({ animeList }: Props) => {
     <Grid container spacing={2} gap={3} sx={{ width: "100%", mx: "auto" }}>
       {animeList.map((anime, index) => (
         <Grid key={index} size={12}>
-          <Anime anime={anime} />
+          <Anime
+            anime={anime}
+            inWatchlist={watchlist.has(anime.aid)}
+            onToggleWatchlist={() => toggleWatchlist(anime.aid)}
+            isLoggedIn={isLoggedIn}
+          />
         </Grid>
       ))}
     </Grid>
