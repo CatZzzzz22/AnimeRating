@@ -12,15 +12,18 @@ import {
 } from "@mui/material";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import Rating from '@mui/material/Rating';
 
 interface Props {
   anime: AnimeType;
   inWatchlist: boolean;
   onToggleWatchlist: () => void;
   isLoggedIn: boolean;
+  ratings: Map<number, number>;
+  rateAnime: (aid: number, score: number | null) => void;
 }
 
-const Anime = ({ anime, inWatchlist, onToggleWatchlist, isLoggedIn }: Props) => {
+const Anime = ({ anime, inWatchlist, onToggleWatchlist, isLoggedIn, ratings, rateAnime }: Props) => {
   const airedDate = anime.aired
     ? new Date(anime.aired).toLocaleDateString(undefined, {
       year: "numeric",
@@ -110,6 +113,22 @@ const Anime = ({ anime, inWatchlist, onToggleWatchlist, isLoggedIn }: Props) => 
             </Typography>
             <Typography variant="caption">{anime.genres ?? "N/A"}</Typography>
           </Stack>
+
+          {isLoggedIn && (
+            <Box mt={1} textAlign="center">
+              <Rating
+                name={`rating-${anime.aid}`}
+                value={ratings.get(anime.aid) ?? null}
+                max={10}
+                precision={1}
+                onChange={(_, newValue) => rateAnime(anime.aid, newValue)}
+                onContextMenu={(e) => {
+                  e.preventDefault();
+                  rateAnime(anime.aid, null);
+                }}
+              />
+            </Box>
+          )}
         </CardContent>
       </Box>
     </Card>

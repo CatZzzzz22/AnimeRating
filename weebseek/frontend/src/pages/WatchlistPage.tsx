@@ -14,9 +14,11 @@ interface Props {
   watchlist: Set<number>;
   toggleWatchlist: (aid: number) => void;
   isLoggedIn: boolean;
+  ratings: Map<number, number>;
+  rateAnime: (aid: number, score: number | null) => void;
 }
 
-function WatchlistPage({ watchlist, toggleWatchlist, isLoggedIn }: Props) {
+function WatchlistPage({ watchlist, toggleWatchlist, isLoggedIn, ratings, rateAnime }: Props) {
   const [animeList, setAnimeList] = useState<AnimeType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -45,6 +47,8 @@ function WatchlistPage({ watchlist, toggleWatchlist, isLoggedIn }: Props) {
           watchlist={watchlist}
           toggleWatchlist={toggleWatchlist}
           isLoggedIn={isLoggedIn}
+          ratings={ratings}
+          rateAnime={rateAnime}
         />
       )}
     </Container>
