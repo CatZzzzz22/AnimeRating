@@ -14,6 +14,7 @@ import AuthModal from './components/Auth';
 import { useAuth } from './contexts/AuthContext';
 import { apiFetch } from './helpers';
 import AnimePage from './pages/AnimePage';
+import UserPage from './pages/UserPage';
 
 function App() {
   const { user, logout, checkSession, loading: authLoading } = useAuth();
@@ -110,6 +111,9 @@ function App() {
               <Button color="inherit" component={Link} to="/watchlist">
                 Watchlist
               </Button>
+              <Button color="inherit" component={Link} to="/user">
+                Profile
+              </Button>
               <Button color="inherit" onClick={logout}>
                 Logout
               </Button>
@@ -158,6 +162,10 @@ function App() {
               isLoggedIn={!!user}
             />
           }
+        />
+        <Route
+          path="/user"
+          element={<UserPage isLoggedIn={!!user} />}
         />
       </Routes>
 
