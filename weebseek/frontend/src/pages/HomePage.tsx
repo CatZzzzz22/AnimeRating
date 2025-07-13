@@ -13,6 +13,7 @@ import {
   InputLabel,
   MenuItem,
   Select,
+  Typography,
   type SelectChangeEvent,
 } from '@mui/material';
 import GenreFilter from '../components/Filters';
@@ -35,6 +36,9 @@ function HomePage({ watchlist, toggleWatchlist, isLoggedIn }: Props) {
   const [types, setTypes] = useState<string[]>([]);
   const [selectedType, setSelectedType] = useState('');
   const [animeList, setAnimeList] = useState<AnimeType[]>([]);
+  const [recommended, setRecommended] = useState<AnimeType[]>([]);
+  const [recLoading, setRecLoading] = useState(false);
+  const [recError, setRecError] = useState<string | null>(null);
 
   const loadGenres = async () => {
     try {
@@ -87,9 +91,23 @@ function HomePage({ watchlist, toggleWatchlist, isLoggedIn }: Props) {
     }
   };
 
+  const fetchRecommended = async () => {
+    setRecLoading(true);
+    setRecError(null);
+    try {
+      const data = await apiFetch<AnimeType[]>('/api/anime/recommend');
+      setRecommended(Array.isArray(data) ? data : []);
+    } catch (e: any) {
+      setRecError(e.message);
+    } finally {
+      setRecLoading(false);
+    }
+  };
+
   useEffect(() => {
     loadGenres();
     loadTypes();
+    fetchRecommended();
   }, []);
 
   useEffect(() => {
@@ -98,6 +116,48 @@ function HomePage({ watchlist, toggleWatchlist, isLoggedIn }: Props) {
 
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>
+      {isLoggedIn && (
+        <Box mb={4}>
+          <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
+            <Typography variant="h6">Recommended for You</Typography>
+            <Button size="small" onClick={fetchRecommended}>Refresh</Button>
+          </Box>
+          {recLoading ? (
+            <CircularProgress size={24} />
+          ) : recError ? (
+            <Alert severity="error">{recError}</Alert>
+          ) : recommended.length === 0 ? (
+            <Typography variant="body2">No recommendations available.</Typography>
+          ) : (
+            <Box display="flex" gap={2} overflow="auto">
+              {recommended.map(anime => (
+                <Box key={anime.aid} textAlign="center" minWidth={120}>
+                  <img
+                    src={anime.imageURL}
+                    alt={anime.aname}
+                    style={{ width: '100%', borderRadius: 8, objectFit: 'cover' }}
+                  />
+                  <Typography
+                    variant="caption"
+                    noWrap
+                    sx={{
+                      maxWidth: 100,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      display: 'block',
+                      mt: 0.5,
+                      mx: 'auto',
+                    }}
+                  >
+                    {anime.aname}
+                  </Typography>
+                </Box>
+              ))}
+            </Box>
+          )}
+        </Box>
+      )}
       <Box display="flex" alignItems="center" gap={2} mb={3}>
         <FormControl sx={{ minWidth: 150 }}>
           <InputLabel id="sort-label">Sort by</InputLabel>
