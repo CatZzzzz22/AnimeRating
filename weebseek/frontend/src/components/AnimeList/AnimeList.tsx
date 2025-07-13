@@ -7,9 +7,11 @@ interface Props {
   watchlist: Set<number>;
   toggleWatchlist: (aid: number) => void;
   isLoggedIn: boolean;
+  ratings: Map<number, number>;
+  rateAnime: (aid: number, score: number | null) => void;
 }
 
-const AnimeList = ({ animeList, watchlist, toggleWatchlist, isLoggedIn }: Props) => {
+const AnimeList = ({ animeList, watchlist, toggleWatchlist, isLoggedIn, ratings, rateAnime }: Props) => {
   if (animeList.length === 0) {
     return (
       <Box textAlign="center" sx={{ mt: 4 }}>
@@ -29,6 +31,8 @@ const AnimeList = ({ animeList, watchlist, toggleWatchlist, isLoggedIn }: Props)
             inWatchlist={watchlist.has(anime.aid)}
             onToggleWatchlist={() => toggleWatchlist(anime.aid)}
             isLoggedIn={isLoggedIn}
+            ratings={ratings}
+            rateAnime={rateAnime}
           />
         </Grid>
       ))}

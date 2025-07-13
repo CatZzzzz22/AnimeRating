@@ -18,6 +18,7 @@ function App() {
   const { user, logout, checkSession, loading: authLoading } = useAuth();
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [watchlist, setWatchlist] = useState<Set<number>>(new Set());
+  const [ratings, setRatings] = useState<Map<number, number>>(new Map());
 
   useEffect(() => {
     checkSession();
@@ -32,6 +33,39 @@ function App() {
       setWatchlist(new Set());
     }
   }, [user]);
+
+  useEffect(() => {
+    if (user) {
+      apiFetch<{ aid: number; score: number }[]>('/api/rating')
+        .then((data) => {
+          const map = new Map(data.map(r => [r.aid, r.score]));
+          setRatings(map);
+        })
+        .catch(err => console.error('Failed to load ratings', err));
+    } else {
+      setRatings(new Map());
+    }
+  }, [user]);
+
+  const rateAnime = async (aid: number, score: number | null) => {
+    const updated = new Map(ratings);
+    try {
+      if (score === null) {
+        await apiFetch(`/api/rating/${aid}`, { method: 'DELETE' });
+        updated.delete(aid);
+      } else {
+        await apiFetch(`/api/rating`, {
+          method: 'POST',
+          body: JSON.stringify({ aid, score }),
+          headers: { 'Content-Type': 'application/json' },
+        });
+        updated.set(aid, score);
+      }
+      setRatings(updated);
+    } catch (e) {
+      console.error("Failed to update rating", e);
+    }
+  };
 
   const toggleWatchlist = async (aid: number) => {
     const updated = new Set(watchlist);
@@ -94,6 +128,8 @@ function App() {
             <HomePage
               watchlist={watchlist}
               toggleWatchlist={toggleWatchlist}
+              ratings={ratings}
+              rateAnime={rateAnime}
               isLoggedIn={!!user}
             />
           }
@@ -104,10 +140,13 @@ function App() {
             <WatchlistPage
               watchlist={watchlist}
               toggleWatchlist={toggleWatchlist}
+              ratings={ratings}
+              rateAnime={rateAnime}
               isLoggedIn={!!user}
             />
           }
         />
+
       </Routes>
 
       <AuthModal open={authModalOpen} onClose={() => setAuthModalOpen(false)} />

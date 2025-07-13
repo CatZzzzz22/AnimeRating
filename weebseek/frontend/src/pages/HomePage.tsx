@@ -24,9 +24,11 @@ interface Props {
   watchlist: Set<number>;
   toggleWatchlist: (aid: number) => void;
   isLoggedIn: boolean;
+  ratings: Map<number, number>;
+  rateAnime: (aid: number, score: number | null) => void;
 }
 
-function HomePage({ watchlist, toggleWatchlist, isLoggedIn }: Props) {
+function HomePage({ watchlist, toggleWatchlist, isLoggedIn, ratings, rateAnime }: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
@@ -195,6 +197,8 @@ function HomePage({ watchlist, toggleWatchlist, isLoggedIn }: Props) {
           watchlist={watchlist}
           toggleWatchlist={toggleWatchlist}
           isLoggedIn={isLoggedIn}
+          ratings={ratings}
+          rateAnime={rateAnime}
         />
       )}
     </Container>
