@@ -13,6 +13,7 @@ import WatchlistPage from './pages/WatchlistPage';
 import AuthModal from './components/Auth';
 import { useAuth } from './contexts/AuthContext';
 import { apiFetch } from './helpers';
+import AnimePage from './pages/AnimePage';
 
 function App() {
   const { user, logout, checkSession, loading: authLoading } = useAuth();
@@ -146,7 +147,18 @@ function App() {
             />
           }
         />
-
+        <Route
+          path="/anime/:aid"
+          element={
+            <AnimePage
+              watchlist={watchlist}
+              toggleWatchlist={toggleWatchlist}
+              ratings={ratings}
+              rateAnime={rateAnime}
+              isLoggedIn={!!user}
+            />
+          }
+        />
       </Routes>
 
       <AuthModal open={authModalOpen} onClose={() => setAuthModalOpen(false)} />

@@ -13,6 +13,7 @@ import {
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import Rating from '@mui/material/Rating';
+import { Link } from "react-router-dom";
 
 interface Props {
   anime: AnimeType;
@@ -40,7 +41,14 @@ const Anime = ({ anime, inWatchlist, onToggleWatchlist, isLoggedIn, ratings, rat
         boxShadow: 1,
         overflow: "hidden",
         width: "100%",
+        textDecoration: 'none',
+        color: 'inherit',
+        '&:hover': {
+          textDecoration: 'none',
+        },
       }}
+      component={Link}
+      to={`/anime/${anime.aid}`}
     >
       <CardMedia
         component="img"
@@ -53,7 +61,11 @@ const Anime = ({ anime, inWatchlist, onToggleWatchlist, isLoggedIn, ratings, rat
         {isLoggedIn && (
           <Tooltip title={inWatchlist ? "Remove from Watchlist" : "Add to Watchlist"}>
             <IconButton
-              onClick={onToggleWatchlist}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onToggleWatchlist();
+              }}
               sx={{ position: "absolute", top: 8, right: 8, zIndex: 1 }}
               color={inWatchlist ? "error" : "default"}
             >
@@ -124,7 +136,12 @@ const Anime = ({ anime, inWatchlist, onToggleWatchlist, isLoggedIn, ratings, rat
                 onChange={(_, newValue) => rateAnime(anime.aid, newValue)}
                 onContextMenu={(e) => {
                   e.preventDefault();
+                  e.stopPropagation();
                   rateAnime(anime.aid, null);
+                }}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
                 }}
               />
             </Box>
