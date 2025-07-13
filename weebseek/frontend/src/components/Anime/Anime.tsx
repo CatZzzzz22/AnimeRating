@@ -6,14 +6,21 @@ import {
   CardMedia,
   Typography,
   Stack,
-  Divider
+  Divider,
+  IconButton,
+  Tooltip,
 } from "@mui/material";
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 
 interface Props {
   anime: AnimeType;
+  inWatchlist: boolean;
+  onToggleWatchlist: () => void;
+  isLoggedIn: boolean;
 }
 
-const Anime = ({ anime }: Props) => {
+const Anime = ({ anime, inWatchlist, onToggleWatchlist, isLoggedIn }: Props) => {
   const airedDate = anime.aired
     ? new Date(anime.aired).toLocaleDateString(undefined, {
       year: "numeric",
@@ -29,7 +36,7 @@ const Anime = ({ anime }: Props) => {
         borderRadius: 2,
         boxShadow: 1,
         overflow: "hidden",
-        width: "100%"
+        width: "100%",
       }}
     >
       <CardMedia
@@ -39,7 +46,19 @@ const Anime = ({ anime }: Props) => {
         alt={anime.aname}
       />
 
-      <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
+      <Box sx={{ display: "flex", flexDirection: "column", flex: 1, position: "relative" }}>
+        {isLoggedIn && (
+          <Tooltip title={inWatchlist ? "Remove from Watchlist" : "Add to Watchlist"}>
+            <IconButton
+              onClick={onToggleWatchlist}
+              sx={{ position: "absolute", top: 8, right: 8, zIndex: 1 }}
+              color={inWatchlist ? "error" : "default"}
+            >
+              {inWatchlist ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+            </IconButton>
+          </Tooltip>
+        )}
+
         <CardContent sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
           <Typography variant="h6" align="center" gutterBottom>
             {anime.aname}
@@ -89,7 +108,6 @@ const Anime = ({ anime }: Props) => {
             <Typography variant="caption">
               <strong>Genres:</strong>
             </Typography>
-
             <Typography variant="caption">{anime.genres ?? "N/A"}</Typography>
           </Stack>
         </CardContent>

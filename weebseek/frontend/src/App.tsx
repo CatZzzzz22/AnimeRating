@@ -1,195 +1,118 @@
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import {
+  AppBar,
+  Toolbar,
+  Button,
+  Typography,
+  CircularProgress,
+} from '@mui/material';
 import { useEffect, useState } from 'react';
-import { apiFetch } from './helpers';
-import type { AnimeType, GenreType, SortOrder, SortType } from './types';
 
-import './App.css'
-import AnimeList from './components/AnimeList';
-import { Alert, AppBar, Box, Button, CircularProgress, Container, FormControl, InputLabel, MenuItem, Select, Toolbar, Typography, type SelectChangeEvent } from '@mui/material';
-import GenreFilter from './components/Filters';
-import TypeFilter from './components/Filters/TypeFilter';
+import HomePage from './pages/HomePage';
+import WatchlistPage from './pages/WatchlistPage';
 import AuthModal from './components/Auth';
 import { useAuth } from './contexts/AuthContext';
-import SearchBar from './components/Filters/SearchBar';
+import { apiFetch } from './helpers';
 
 function App() {
-  const { user, loading: authLoading, logout, checkSession } = useAuth();
+  const { user, logout, checkSession, loading: authLoading } = useAuth();
   const [authModalOpen, setAuthModalOpen] = useState(false);
-
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
-  const [sortBy, setSortBy] = useState<SortType>("aired");
-
-  const [genres, setGenres] = useState<GenreType[]>([]);
-  const [selectedGenre, setSelectedGenre] = useState<string>('');
-
-  const [types, setTypes] = useState<string[]>([]);
-  const [selectedType, setSelectedType] = useState<string>('');
-
-  const [animeList, setAnimeList] = useState<AnimeType[]>([]);
-
-  const loadGenres = async () => {
-    try {
-      const data = await apiFetch<GenreType[]>('/api/anime/genre');
-      if (!Array.isArray(data)) {
-        setGenres([]);
-      } else {
-        setGenres(data);
-      }
-    } catch (e) {
-      console.error('Could not load Genres', e);
-    }
-  }
-
-  const loadTypes = async () => {
-    try {
-      const data = await apiFetch<string[]>('/api/anime/type');
-      if (!Array.isArray(data)) {
-        setTypes([]);
-      } else {
-        setTypes(data);
-      }
-    } catch (e) {
-      console.error('Could not load Types', e);
-    }
-  }
-
-  const fetchAnime = async () => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      let url = `/api/anime/query?sort_by=${sortBy}&order=${sortOrder}`;
-      if (selectedGenre) url += `&genre=${encodeURIComponent(selectedGenre)}`;
-      if (selectedType) url += `&type=${encodeURIComponent(selectedType)}`;
-
-      const data = (await apiFetch<AnimeType[]>(url)).slice(0, 20);
-      if (!Array.isArray(data)) {
-        setAnimeList([]);
-      } else {
-        setAnimeList(data);
-      }
-    } catch (e: any) {
-      setError(e.message);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  const handleSearch = async (query: string) => {
-    if (!query) return fetchAnime();
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      const data = await apiFetch<AnimeType[]>(
-        `/api/anime/search?aname=${encodeURIComponent(query)}`
-      );
-      setAnimeList(Array.isArray(data) ? data.slice(0, 20) : []);
-    } catch (e: any) {
-      setError(e.message);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  const handleSortByChange = (e: SelectChangeEvent) => {
-    setSortBy(e.target.value as SortType);
-  }
-
-  const toggleSortOrder = () => {
-    setSortOrder(prev => (prev === 'asc' ? 'desc' : 'asc'));
-  }
+  const [watchlist, setWatchlist] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     checkSession();
-    loadGenres();
-    loadTypes();
   }, []);
 
   useEffect(() => {
-    fetchAnime();
-  }, [sortBy, sortOrder, selectedGenre, selectedType])
+    if (user) {
+      apiFetch<number[]>('/api/watchlist')
+        .then((data) => setWatchlist(new Set(data)))
+        .catch((err) => console.error('Failed to load watchlist', err));
+    } else {
+      setWatchlist(new Set());
+    }
+  }, [user]);
 
-  if (authLoading) {
-    return <CircularProgress />;
-  }
+  const toggleWatchlist = async (aid: number) => {
+    const updated = new Set(watchlist);
+    try {
+      if (watchlist.has(aid)) {
+        await apiFetch(`/api/watchlist/${aid}`, { method: 'DELETE' });
+        updated.delete(aid);
+      } else {
+        await apiFetch(`/api/watchlist`, {
+          method: 'POST',
+          body: JSON.stringify({ aid }),
+          headers: { 'Content-Type': 'application/json' },
+        });
+        updated.add(aid);
+      }
+      setWatchlist(updated);
+    } catch (e) {
+      console.error('Failed to update watchlist', e);
+    }
+  };
+
+  if (authLoading) return <CircularProgress sx={{ m: 4 }} />;
 
   return (
-    <>
-      <AppBar position='static'>
+    <Router>
+      <AppBar position="static">
         <Toolbar>
-          <Typography variant='h6' sx={{ flexGrow: 1 }}>
+          <Typography variant="h6" sx={{ flexGrow: 1 }}>
             Weebseek
           </Typography>
+          {user && (
+            <Typography sx={{ mr: 10 }}>
+              Logged in as {user.username}
+            </Typography>
+          )}
+          <Button color="inherit" component={Link} to="/">
+            Home
+          </Button>
           {user ? (
             <>
-              <Typography sx={{ mr: 2 }}>Hi, {user.username}</Typography>
+              <Button color="inherit" component={Link} to="/watchlist">
+                Watchlist
+              </Button>
               <Button color="inherit" onClick={logout}>
                 Logout
               </Button>
             </>
           ) : (
-            <Button color='inherit' onClick={() => setAuthModalOpen(true)}>
+            <Button color="inherit" onClick={() => setAuthModalOpen(true)}>
               Login / Register
             </Button>
           )}
         </Toolbar>
       </AppBar>
-      <Container maxWidth="md" sx={{ mt: 4 }}>
-        <Box display="flex" alignItems="center" gap={2} mb={3}>
-          <FormControl sx={{ minWidth: 150 }}>
-            <InputLabel id="sort-label">Sort by</InputLabel>
-            <Select
-              labelId="sort-label"
-              value={sortBy}
-              label="Sort by"
-              onChange={handleSortByChange}
-              size="small"
-            >
-              <MenuItem value="score">Score</MenuItem>
-              <MenuItem value="aired">Aired Date</MenuItem>
-            </Select>
-          </FormControl>
 
-          <Button variant="outlined" onClick={toggleSortOrder}>
-            {sortOrder === 'asc' ? 'Ascending' : 'Descending'}
-          </Button>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <HomePage
+              watchlist={watchlist}
+              toggleWatchlist={toggleWatchlist}
+              isLoggedIn={!!user}
+            />
+          }
+        />
+        <Route
+          path="/watchlist"
+          element={
+            <WatchlistPage
+              watchlist={watchlist}
+              toggleWatchlist={toggleWatchlist}
+              isLoggedIn={!!user}
+            />
+          }
+        />
+      </Routes>
 
-          <GenreFilter
-            genres={genres}
-            selectedGenre={selectedGenre}
-            onChange={setSelectedGenre}
-          />
-
-          <TypeFilter
-            types={types}
-            selectedType={selectedType}
-            onChange={setSelectedType}
-          />
-        </Box>
-
-        <Box mb={3}>
-          <SearchBar onSearch={handleSearch} />
-        </Box>
-
-        {loading ? (
-          <Box textAlign="center"><CircularProgress /></Box>
-        ) : error ? (
-          <Alert severity="error">{error}</Alert>
-        ) : (
-          <AnimeList animeList={animeList} />
-        )}
-      </Container>
-
-      <AuthModal
-        open={authModalOpen}
-        onClose={() => setAuthModalOpen(false)}
-      />
-    </>
-  )
+      <AuthModal open={authModalOpen} onClose={() => setAuthModalOpen(false)} />
+    </Router>
+  );
 }
 
-export default App
+export default App;
