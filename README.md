@@ -95,12 +95,18 @@ You need two terminals, one for frontend and one for backend, and keep them runn
     ```
 
 ### Currently Supported Features
-- Sort animes by rating or aired date (/weebseek/backend/routes/anime_routes.py)
 - Filter animes by name, genres or type (/weebseek/backend/routes/anime_routes.py)
-- Create accounts and log in (/weebseek/backend/routes/auth_routes.py)
-- To do:
-  - Create watchlists
-  - Enable search by name
+- Sort animes by rating or aired date (/weebseek/backend/routes/anime_routes.py)
+- Search anime by name (/weebseek/backend/routes/anime_routes.py)
+- Create accounts, log in and log out (/weebseek/backend/routes/auth_routes.py)
+- Create watchlists (/weebseek/backend/routes/watchlist_routes.py)
+
+- Anime recommendation section for users based on their watchlist (/weebseek/backend/routes/user_routes.py)
+- User rate anime and reflect on the overall score of the anime (/weebseek/backend/routes/rating_routes.py)
+- User follow/unfollow and disable user to self follow (/weebseek/backend/routes/user_routes.py)
+- User recently viewed anime section (/weebseek/backend/routes/view_routes.py)
+- People you may know section based on mutual followers (/weebseek/backend/routes/user_routes.py)
+
  
 ### Generate and Load the Production Dataset
 - The production data were downloaded from MyAnimeList Dataset on Kaggle. The data is then being transformed with clean_dataset.py into appropriate form for loading into the database. We match the attribute names, drop the duplicate records, trim whitespace on string columns, and ensure numeric and date types. We also enforce referential integrity to match with our table schema. The raw data contains 3 downloaded CSV files: anime_production.csv, user_production.csv, user_score_production.csv. The cleaned data contains 6 cleaned and normalized CSV files: anime.csv, genre.csv, animegenre.csv, user.csv, rating.csv, watchlist.csv.
