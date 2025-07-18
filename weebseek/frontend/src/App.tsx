@@ -9,6 +9,7 @@ import GenreFilter from './components/Filters';
 import TypeFilter from './components/Filters/TypeFilter';
 import AuthModal from './components/Auth';
 import { useAuth } from './contexts/AuthContext';
+import SearchBar from './components/Filters/SearchBar';
 
 function App() {
   const { user, loading: authLoading, logout, checkSession } = useAuth();
@@ -69,6 +70,24 @@ function App() {
       } else {
         setAnimeList(data);
       }
+    } catch (e: any) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const handleSearch = async (query: string) => {
+    if (!query) return fetchAnime();
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const data = await apiFetch<AnimeType[]>(
+        `/api/anime/search?aname=${encodeURIComponent(query)}`
+      );
+      setAnimeList(Array.isArray(data) ? data.slice(0, 20) : []);
     } catch (e: any) {
       setError(e.message);
     } finally {
@@ -150,6 +169,10 @@ function App() {
             selectedType={selectedType}
             onChange={setSelectedType}
           />
+        </Box>
+
+        <Box mb={3}>
+          <SearchBar onSearch={handleSearch} />
         </Box>
 
         {loading ? (
