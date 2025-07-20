@@ -7,6 +7,8 @@ DROP TABLE IF EXISTS Watchlist;
 DROP TABLE IF EXISTS Rating;
 DROP TABLE IF EXISTS User;
 DROP TABLE IF EXISTS Anime;
+DROP TABLE IF EXISTS UserFollow;
+DROP TABLE IF EXISTS ViewHistory;
 
 -- Create Anime table
 CREATE TABLE Anime (
@@ -68,6 +70,23 @@ CREATE TABLE Watchlist (
   FOREIGN KEY (aid) REFERENCES Anime(aid) ON DELETE CASCADE
 );
 
+-- Create UserFollow table
+CREATE TABLE UserFollow (
+  followerUid INT,
+  followeeUid INT,
+  PRIMARY KEY (followerUid, followeeUid),
+  FOREIGN KEY (followerUid) REFERENCES User(uid) ON DELETE CASCADE,
+  FOREIGN KEY (followeeUid) REFERENCES User(uid) ON DELETE CASCADE
+);
+
+-- Create ViewHistory table
+CREATE TABLE ViewHistory (
+  uid INT,
+  aid INT, 
+  viewed_date DATETIME,
+  PRIMARY KEY (uid, aid)
+);
+
 CREATE INDEX AnimeType ON Anime(type);
 CREATE INDEX idx_score_asc  ON Anime(score ASC);
 CREATE INDEX idx_score_desc ON Anime(score DESC);
@@ -82,3 +101,5 @@ CREATE INDEX GenreName ON Genre(gname);
 
 CREATE INDEX AnimeGenreAid ON AnimeGenre(aid);
 CREATE INDEX AnimeGenreGid ON AnimeGenre(gid);
+
+CREATE INDEX idx_watchlist_uid ON Watchlist(uid);
