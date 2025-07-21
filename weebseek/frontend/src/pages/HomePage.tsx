@@ -97,7 +97,7 @@ function HomePage({ watchlist, toggleWatchlist, isLoggedIn, ratings, rateAnime }
     setRecLoading(true);
     setRecError(null);
     try {
-      const data = await apiFetch<AnimeType[]>('/api/anime/recommend');
+      const data = await apiFetch<AnimeType[]>('/api/user/recommendation/anime');
       setRecommended(Array.isArray(data) ? data : []);
     } catch (e: any) {
       setRecError(e.message);

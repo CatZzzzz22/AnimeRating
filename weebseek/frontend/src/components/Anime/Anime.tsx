@@ -13,7 +13,9 @@ import {
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import Rating from '@mui/material/Rating';
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useCallback } from "react";
+import { apiFetch } from "../../helpers";
 
 interface Props {
   anime: AnimeType;
@@ -25,6 +27,8 @@ interface Props {
 }
 
 const Anime = ({ anime, inWatchlist, onToggleWatchlist, isLoggedIn, ratings, rateAnime }: Props) => {
+  const navigate = useNavigate();
+
   const airedDate = anime.aired
     ? new Date(anime.aired).toLocaleDateString(undefined, {
       year: "numeric",
@@ -32,6 +36,21 @@ const Anime = ({ anime, inWatchlist, onToggleWatchlist, isLoggedIn, ratings, rat
       day: "numeric",
     })
     : "Unknown";
+
+  const handleCardClick = useCallback(async () => {
+    if (isLoggedIn) {
+      try {
+        await apiFetch("/api/user/view", {
+          method: 'POST',
+          body: JSON.stringify({ aid: anime.aid }),
+          headers: { "Content-Type": "application/json" },
+        });
+      } catch (err) {
+        console.error("Failed to record view: ", err);
+      }
+    }
+    navigate(`/anime/${anime.aid}`);
+  }, [anime.aid, isLoggedIn, navigate]);
 
   return (
     <Card
@@ -47,8 +66,7 @@ const Anime = ({ anime, inWatchlist, onToggleWatchlist, isLoggedIn, ratings, rat
           textDecoration: 'none',
         },
       }}
-      component={Link}
-      to={`/anime/${anime.aid}`}
+      onClick={handleCardClick}
     >
       <CardMedia
         component="img"
