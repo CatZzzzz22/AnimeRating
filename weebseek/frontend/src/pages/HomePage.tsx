@@ -1,7 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { apiFetch } from '../helpers';
 import type { AnimeType, GenreType, SortOrder, SortType } from '../types';
-
 import AnimeList from '../components/AnimeList';
 import {
   Alert,
@@ -19,6 +18,7 @@ import {
 import GenreFilter from '../components/Filters';
 import TypeFilter from '../components/Filters/TypeFilter';
 import SearchBar from '../components/Filters/SearchBar';
+import { useNavigate } from 'react-router-dom';
 
 interface Props {
   watchlist: Set<number>;
@@ -27,6 +27,8 @@ interface Props {
   ratings: Map<number, number>;
   rateAnime: (aid: number, score: number | null) => void;
 }
+
+const ITEMS_PER_LOAD = 20;
 
 function HomePage({ watchlist, toggleWatchlist, isLoggedIn, ratings, rateAnime }: Props) {
   const [loading, setLoading] = useState(false);
@@ -38,9 +40,14 @@ function HomePage({ watchlist, toggleWatchlist, isLoggedIn, ratings, rateAnime }
   const [types, setTypes] = useState<string[]>([]);
   const [selectedType, setSelectedType] = useState('');
   const [animeList, setAnimeList] = useState<AnimeType[]>([]);
+  const [visibleCount, setVisibleCount] = useState(ITEMS_PER_LOAD);
+
   const [recommended, setRecommended] = useState<AnimeType[]>([]);
   const [recLoading, setRecLoading] = useState(false);
   const [recError, setRecError] = useState<string | null>(null);
+
+  const navigate = useNavigate();
+  const loaderRef = useRef<HTMLDivElement | null>(null);
 
   const loadGenres = async () => {
     try {
@@ -68,8 +75,9 @@ function HomePage({ watchlist, toggleWatchlist, isLoggedIn, ratings, rateAnime }
       if (selectedGenre) url += `&genre=${encodeURIComponent(selectedGenre)}`;
       if (selectedType) url += `&type=${encodeURIComponent(selectedType)}`;
 
-      const data = (await apiFetch<AnimeType[]>(url)).slice(0, 20);
+      const data = await apiFetch<AnimeType[]>(url);
       setAnimeList(Array.isArray(data) ? data : []);
+      setVisibleCount(ITEMS_PER_LOAD);
     } catch (e: any) {
       setError(e.message);
     } finally {
@@ -82,10 +90,9 @@ function HomePage({ watchlist, toggleWatchlist, isLoggedIn, ratings, rateAnime }
     setLoading(true);
     setError(null);
     try {
-      const data = await apiFetch<AnimeType[]>(
-        `/api/anime/query?aname=${encodeURIComponent(query)}`
-      );
-      setAnimeList(Array.isArray(data) ? data.slice(0, 20) : []);
+      const data = await apiFetch<AnimeType[]>(`/api/anime/query?aname=${encodeURIComponent(query)}`);
+      setAnimeList(Array.isArray(data) ? data : []);
+      setVisibleCount(ITEMS_PER_LOAD);
     } catch (e: any) {
       setError(e.message);
     } finally {
@@ -106,10 +113,28 @@ function HomePage({ watchlist, toggleWatchlist, isLoggedIn, ratings, rateAnime }
     }
   };
 
+  const handleObserver = useCallback((entries: IntersectionObserverEntry[]) => {
+    const target = entries[0];
+    if (target.isIntersecting) {
+      setVisibleCount((prev) => Math.min(prev + ITEMS_PER_LOAD, animeList.length));
+    }
+  }, [animeList.length]);
+
+  useEffect(() => {
+    const option = { root: null, rootMargin: '20px', threshold: 1.0 };
+    const observer = new IntersectionObserver(handleObserver, option);
+    if (loaderRef.current) observer.observe(loaderRef.current);
+    return () => {
+      if (loaderRef.current) observer.unobserve(loaderRef.current);
+    };
+  }, [handleObserver]);
+
   useEffect(() => {
     loadGenres();
     loadTypes();
-    fetchRecommended();
+    if (isLoggedIn) {
+      fetchRecommended();
+    }
   }, []);
 
   useEffect(() => {
@@ -133,7 +158,7 @@ function HomePage({ watchlist, toggleWatchlist, isLoggedIn, ratings, rateAnime }
           ) : (
             <Box display="flex" gap={2} overflow="auto">
               {recommended.map(anime => (
-                <Box key={anime.aid} textAlign="center" minWidth={120}>
+                <Box key={anime.aid} textAlign="center" minWidth={120} onClick={() => navigate(`/anime/${anime.aid}`)}>
                   <img
                     src={anime.imageURL}
                     alt={anime.aname}
@@ -160,6 +185,7 @@ function HomePage({ watchlist, toggleWatchlist, isLoggedIn, ratings, rateAnime }
           )}
         </Box>
       )}
+
       <Box display="flex" alignItems="center" gap={2} mb={3}>
         <FormControl sx={{ minWidth: 150 }}>
           <InputLabel id="sort-label">Sort by</InputLabel>
@@ -192,14 +218,21 @@ function HomePage({ watchlist, toggleWatchlist, isLoggedIn, ratings, rateAnime }
       ) : error ? (
         <Alert severity="error">{error}</Alert>
       ) : (
-        <AnimeList
-          animeList={animeList}
-          watchlist={watchlist}
-          toggleWatchlist={toggleWatchlist}
-          isLoggedIn={isLoggedIn}
-          ratings={ratings}
-          rateAnime={rateAnime}
-        />
+        <>
+          <AnimeList
+            animeList={animeList.slice(0, visibleCount)}
+            watchlist={watchlist}
+            toggleWatchlist={toggleWatchlist}
+            isLoggedIn={isLoggedIn}
+            ratings={ratings}
+            rateAnime={rateAnime}
+          />
+          {visibleCount < animeList.length && (
+            <Box ref={loaderRef} textAlign="center" mt={2}>
+              <Typography variant="body2" color="text.secondary">Loading more...</Typography>
+            </Box>
+          )}
+        </>
       )}
     </Container>
   );
