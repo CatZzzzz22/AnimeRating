@@ -83,7 +83,7 @@ function HomePage({ watchlist, toggleWatchlist, isLoggedIn, ratings, rateAnime }
     setError(null);
     try {
       const data = await apiFetch<AnimeType[]>(
-        `/api/anime/search?aname=${encodeURIComponent(query)}`
+        `/api/anime/query?aname=${encodeURIComponent(query)}`
       );
       setAnimeList(Array.isArray(data) ? data.slice(0, 20) : []);
     } catch (e: any) {
