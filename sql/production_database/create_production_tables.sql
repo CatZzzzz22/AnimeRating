@@ -2,13 +2,13 @@ CREATE DATABASE IF NOT EXISTS ProductionAnimeRatingApp;
 USE ProductionAnimeRatingApp;
 
 DROP TABLE IF EXISTS AnimeGenre;
-DROP TABLE IF EXISTS Genre;
 DROP TABLE IF EXISTS Watchlist;
 DROP TABLE IF EXISTS Rating;
-DROP TABLE IF EXISTS User;
-DROP TABLE IF EXISTS Anime;
 DROP TABLE IF EXISTS UserFollow;
 DROP TABLE IF EXISTS ViewHistory;
+DROP TABLE IF EXISTS User;
+DROP TABLE IF EXISTS Anime;
+DROP TABLE IF EXISTS Genre;
 
 -- Create Anime table
 CREATE TABLE Anime (
@@ -84,7 +84,9 @@ CREATE TABLE ViewHistory (
   uid INT,
   aid INT, 
   viewed_date DATETIME,
-  PRIMARY KEY (uid, aid)
+  PRIMARY KEY (uid, aid),
+  FOREIGN KEY (uid) REFERENCES User(uid) ON DELETE CASCADE,
+  FOREIGN KEY (aid) REFERENCES Anime(aid) ON DELETE CASCADE
 );
 
 CREATE INDEX AnimeType ON Anime(type);

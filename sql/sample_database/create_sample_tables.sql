@@ -67,3 +67,22 @@ CREATE TABLE Watchlist (
   FOREIGN KEY (uid) REFERENCES User(uid) ON DELETE CASCADE,
   FOREIGN KEY (aid) REFERENCES Anime(aid) ON DELETE CASCADE
 );
+
+-- Create UserFollow table
+CREATE TABLE UserFollow (
+  followerUid INT,
+  followeeUid INT,
+  PRIMARY KEY (followerUid, followeeUid),
+  FOREIGN KEY (followerUid) REFERENCES User(uid) ON DELETE CASCADE,
+  FOREIGN KEY (followeeUid) REFERENCES User(uid) ON DELETE CASCADE
+);
+
+-- Create ViewHistory table
+CREATE TABLE ViewHistory (
+  uid INT,
+  aid INT, 
+  viewed_date DATETIME,
+  PRIMARY KEY (uid, aid),
+  FOREIGN KEY (uid) REFERENCES User(uid) ON DELETE CASCADE,
+  FOREIGN KEY (aid) REFERENCES Anime(aid) ON DELETE CASCADE
+);
