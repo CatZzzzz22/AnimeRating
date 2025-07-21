@@ -5,6 +5,8 @@ import bcrypt
 
 auth_bp = Blueprint("auth", __name__)
 
+USE_BCRYPT = False
+
 ## User registration
 @auth_bp.route("/api/auth/register", methods=["POST"])
 def register():
@@ -19,7 +21,10 @@ def register():
     if not username or not password:
         return jsonify({"error": "Username and password are required"}), 400
     
-    hashed_pw = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+    if USE_BCRYPT:
+        hashed_pw = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+    else:
+        hashed_pw = password  # store plain text
     
     try:
         conn = get_db_connection()
@@ -68,16 +73,25 @@ def login():
     cursor.close()
     conn.close()
 
-    if user and bcrypt.checkpw(password.encode("utf-8"), user["password"].encode("utf-8")):
-        session["user_id"] = user["uid"]
-        session["username"] = user["username"]
-        return jsonify({
-            "message": "Login successful.", 
-            "user_id": user["uid"], 
-            "username": user["username"]
-        })
+    if not user:
+        return jsonify({"error": "Username not found."}), 404
+    
+    if USE_BCRYPT:
+        password_valid = bcrypt.checkpw(password.encode("utf-8"), user["password"].encode("utf-8"))
     else:
-        return jsonify({"error": "Invalid credentials."}), 401
+        password_valid = password == user["password"]
+
+    if not password_valid:
+        return jsonify({"error": "Incorrect password."}), 401
+
+    # Successful login
+    session["user_id"] = user["uid"]
+    session["username"] = user["username"]
+    return jsonify({
+        "message": "Login successful.", 
+        "user_id": user["uid"], 
+        "username": user["username"]
+    }), 200
 
 ## User log out
 @auth_bp.route("/api/auth/logout", methods=["POST"])
