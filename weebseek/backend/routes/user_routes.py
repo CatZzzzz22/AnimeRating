@@ -273,29 +273,46 @@ def recursive_recommendations():
     cursor = conn.cursor(dictionary=True)
 
     try:
-        query = """
-            WITH RECURSIVE FollowGraph AS (
-              SELECT followeeUid, 1 AS level
-              FROM UserFollow
-              WHERE followerUid = %s
+        # Check if user has followed anyone
+        cursor.execute("SELECT 1 FROM UserFollow WHERE followerUid = %s LIMIT 1", (uid,))
+        has_followed = cursor.fetchone()
 
-              UNION
+        if has_followed:
+            # Recursive recommendations from follow graph
+            query = """
+                WITH RECURSIVE FollowGraph AS (
+                  SELECT followeeUid, 1 AS level
+                  FROM UserFollow
+                  WHERE followerUid = %s
 
-              SELECT uf.followeeUid, fg.level + 1
-              FROM UserFollow uf
-              JOIN FollowGraph fg ON uf.followerUid = fg.followeeUid
-              WHERE fg.level < 4
-            )
-            SELECT DISTINCT u.uid, u.username, u.uname, u.location
-            FROM FollowGraph fg
-            JOIN User u ON u.uid = fg.followeeUid
-            WHERE u.uid != %s
-              AND u.uid NOT IN (
-                SELECT followeeUid FROM UserFollow WHERE followerUid = %s
-              )
-            LIMIT 10;
-        """
-        cursor.execute(query, (uid, uid, uid))
+                  UNION
+
+                  SELECT uf.followeeUid, fg.level + 1
+                  FROM UserFollow uf
+                  JOIN FollowGraph fg ON uf.followerUid = fg.followeeUid
+                  WHERE fg.level < 4
+                )
+                SELECT DISTINCT u.uid, u.username, u.uname, u.location
+                FROM FollowGraph fg
+                JOIN User u ON u.uid = fg.followeeUid
+                WHERE u.uid != %s
+                  AND u.uid NOT IN (
+                    SELECT followeeUid FROM UserFollow WHERE followerUid = %s
+                  )
+                LIMIT 10;
+            """
+            cursor.execute(query, (uid, uid, uid))
+        else:
+            # Suggest random users if no follows yet
+            query = """
+                SELECT uid, username, uname, location
+                FROM User
+                WHERE uid != %s
+                ORDER BY RAND()
+                LIMIT 10;
+            """
+            cursor.execute(query, (uid,))
+
         recommendations = cursor.fetchall()
         return jsonify(recommendations), 200
 
@@ -305,4 +322,3 @@ def recursive_recommendations():
     finally:
         cursor.close()
         conn.close()
-
