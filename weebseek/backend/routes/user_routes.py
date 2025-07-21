@@ -11,12 +11,9 @@ def user_profile():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
-    uid = request.args.get("uid")
+    uid = session["user_id"]
 
     try:
-        if not uid or not uid.isdigit():
-            return jsonify({"error": "Invalid or missing UID."}), 400
-
         query = "SELECT * FROM User WHERE uid = %s"
         cursor.execute(query, (uid,))
         profile = cursor.fetchone()
@@ -36,10 +33,9 @@ def user_profile():
         conn.close()
 
 # Get the watchlist of user :uid
-@user_bp.route("/api/user/<int:uid>/watchlist", methods=["GET"])
-def user_watchlist(uid):
-    if not uid:
-        return jsonify({"error": "Missing user ID."}), 400
+@user_bp.route("/api/user/watchlist", methods=["GET"])
+def user_watchlist():
+    uid = session["user_id"]
 
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
@@ -95,7 +91,7 @@ def user_recent_viewed():
 # Anime recommendation for current user based on genres in the watchlist
 @user_bp.route("/api/user/recommendation/anime", methods=["GET"])
 def recommend_anime():
-    uid = session.get("user_id")
+    uid = session["user_id"]
     if not uid:
         return jsonify({"error": "Missing user ID."}), 400
 
@@ -212,12 +208,10 @@ def unfollow_user(uid):
         cursor.close()
         conn.close()
 
-# Get followers
+# Get followers of current user
 @user_bp.route("/api/user/followers", methods=["GET"])
 def get_followers():
-    uid = request.args.get("uid")
-    if not uid or not uid.isdigit():
-        return jsonify({"error": "Invalid or missing UID."}), 400
+    uid = session["user_id"]
 
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
@@ -243,12 +237,10 @@ def get_followers():
         cursor.close()
         conn.close()
 
-# Get current following users
+# Get the users that the current user is following
 @user_bp.route("/api/user/following", methods=["GET"])
 def get_following():
-    uid = request.args.get("uid")
-    if not uid or not uid.isdigit():
-        return jsonify({"error": "Invalid or missing UID."}), 400
+    uid = session["user_id"]
 
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
@@ -277,9 +269,7 @@ def get_following():
 # User follow recommendation
 @user_bp.route("/api/user/recommendations/user", methods=["GET"])
 def recursive_recommendations():
-    uid = request.args.get("uid")
-    if not uid or not uid.isdigit():
-        return jsonify({"error": "Invalid or missing UID."}), 400
+    uid = session["user_id"]
 
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
