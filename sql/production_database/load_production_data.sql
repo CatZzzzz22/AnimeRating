@@ -53,3 +53,21 @@ ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
 IGNORE 1 LINES
 (uid, aid);
+
+-- Load UserFollow
+LOAD DATA LOCAL INFILE '../../production_cleaned_data/userfollow.csv'
+INTO TABLE UserFollow
+FIELDS TERMINATED BY ',' 
+ENCLOSED BY '"' 
+LINES TERMINATED BY '\n'
+IGNORE 1 LINES
+(followerUid, followeeUid);
+
+-- Load ViewHistory
+LOAD DATA LOCAL INFILE '../../production_cleaned_data/viewhistory.csv'
+INTO TABLE ViewHistory
+FIELDS TERMINATED BY ',' 
+ENCLOSED BY '"' 
+LINES TERMINATED BY '\n'
+IGNORE 1 LINES
+(uid, aid, viewed_date);

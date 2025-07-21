@@ -33,10 +33,8 @@ def user_profile():
         conn.close()
 
 # Other users' profile
-@user_bp.route("/api/user/profile", methods=["GET"])
-def user_profile():
-    uid = request.args.get("uid")
-
+@user_bp.route("/api/user/profile/<int:uid>", methods=["GET"])
+def other_user_profile(uid):
     if not uid or not uid.isdigit():
         return jsonify({"error": "Invalid or missing UID"}), 400
 
