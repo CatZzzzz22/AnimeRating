@@ -5,6 +5,7 @@ from routes.anime_routes import anime_bp
 from routes.user_routes import user_bp
 from routes.watchlist_routes import watchlist_bp
 from routes.view_routes import view_bp
+from routes.rating_routes import rating_bp
 from db.connection import get_db_connection
 from utils.sql_utils import read_commands_from_file
 from constants import REQUIRED_TABLES, CREATE_VIEW_FPATH, CREATE_TRIGGER_FPATH
@@ -143,6 +144,7 @@ app.register_blueprint(auth_bp)
 app.register_blueprint(user_bp)
 app.register_blueprint(watchlist_bp)
 app.register_blueprint(view_bp)
+app.register_blueprint(rating_bp)
 
 if __name__ == "__main__":
     app.run(port=5050, debug=True)

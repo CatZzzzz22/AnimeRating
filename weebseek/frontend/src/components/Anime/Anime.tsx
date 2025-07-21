@@ -13,7 +13,7 @@ import {
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import Rating from '@mui/material/Rating';
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useCallback } from "react";
 import { apiFetch } from "../../helpers";
 
@@ -145,21 +145,28 @@ const Anime = ({ anime, inWatchlist, onToggleWatchlist, isLoggedIn, ratings, rat
           </Stack>
 
           {isLoggedIn && (
-            <Box mt={1} textAlign="center">
+            <Box
+              mt={1}
+              textAlign="center"
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+              onContextMenu={(e) => {
+                e.stopPropagation();
+              }}
+            >
               <Rating
                 name={`rating-${anime.aid}`}
                 value={ratings.get(anime.aid) ?? null}
                 max={10}
                 precision={1}
-                onChange={(_, newValue) => rateAnime(anime.aid, newValue)}
+                onChange={(_, newValue) => {
+                  rateAnime(anime.aid, newValue);
+                  console.log('rating changed to ', newValue)
+                }}
                 onContextMenu={(e) => {
                   e.preventDefault();
-                  e.stopPropagation();
                   rateAnime(anime.aid, null);
-                }}
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
                 }}
               />
             </Box>
