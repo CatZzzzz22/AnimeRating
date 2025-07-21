@@ -292,7 +292,7 @@ def recursive_recommendations():
                   JOIN FollowGraph fg ON uf.followerUid = fg.followeeUid
                   WHERE fg.level < 4
                 )
-                SELECT DISTINCT u.uid, u.username, u.uname, u.location
+                SELECT DISTINCT u.uid, u.username, u.uname, u.gender, u.age, u.location, u.joinedDate
                 FROM FollowGraph fg
                 JOIN User u ON u.uid = fg.followeeUid
                 WHERE u.uid != %s
@@ -305,7 +305,7 @@ def recursive_recommendations():
         else:
             # Suggest random users if no follows yet
             query = """
-                SELECT uid, username, uname, location
+                SELECT uid, username, uname, gender, age, location, joinedDate
                 FROM User
                 WHERE uid != %s
                 ORDER BY RAND()
