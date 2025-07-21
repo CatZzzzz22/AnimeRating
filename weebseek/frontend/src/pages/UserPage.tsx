@@ -38,10 +38,10 @@ const UserPage = ({ isLoggedIn }: Props) => {
     if (!isLoggedIn) return;
 
     Promise.all([
-      apiFetch<AnimeType[]>('/api/user/recent'),
+      apiFetch<AnimeType[]>('/api/user/recent-viewed'),
       apiFetch<PublicUser[]>('/api/user/followers'),
       apiFetch<PublicUser[]>('/api/user/following'),
-      apiFetch<PublicUser[]>('/api/user/recommend/follow'),
+      apiFetch<PublicUser[]>('/api/user/recommendations/user'),
     ])
       .then(([recentData, followersData, followingData, recommendData]) => {
         setRecent(Array.isArray(recentData) ? recentData : []);
