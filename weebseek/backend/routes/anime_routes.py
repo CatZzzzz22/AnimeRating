@@ -13,9 +13,10 @@ def query_anime():
     order = request.args.get("order", default="asc")
     allowed_ordering_fields = ["score", "aired"]  # users can sort Anime table by rating or aired
     
-    # users can filter Anime table by genre or type
+    # users can filter Anime table by genre or type & search Anime by name
     genre = request.args.get("genre")
     anime_type = request.args.get("type")
+    name = request.args.get("aname")
 
     if sort_by not in allowed_ordering_fields:
         sort_by = "aid"
@@ -31,6 +32,9 @@ def query_anime():
     if anime_type:
         filters.append("LOWER(type) = LOWER(%s)")
         values.append(anime_type)
+    if name:
+        filters.append("LOWER(aname) LIKE %s")
+        values.append(f"%{name.lower()}%")
 
     where_clause = f"WHERE {' AND '.join(filters)}" if filters else ""
 
@@ -53,6 +57,30 @@ def query_anime():
             return jsonify({"message": "No anime found."}), 200
 
         return jsonify(results), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+    finally:
+        cursor.close()
+        conn.close()
+
+## Get anime details by aid
+@anime_bp.route("/api/anime/<int:aid>", methods=["GET"])
+def get_anime_by_aid(aid):
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    try:
+        query = "SELECT * FROM Anime_genre WHERE aid = %s"
+        cursor.execute(query, (aid,))
+        anime = cursor.fetchone()
+        
+        ## If anime result is empty
+        if not anime:
+            return jsonify({"message": "Anime ID is not found."}), 404
+        
+        return jsonify(anime), 200
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -110,29 +138,4 @@ def types():
         cursor.close()
         conn.close()
 
-## Search anime by name
-@anime_bp.route("/api/anime/search", methods=["GET"])
-def search_anime():
-    name = request.args.get("aname")
-
-    conn = get_db_connection()
-    cursor = conn.cursor(dictionary=True)
-
-    try:
-        query = f"SELECT * FROM Anime_genre WHERE LOWER(aname) LIKE %s"
-        cursor.execute(query, (f"%{name.lower()}%",))
-        results = cursor.fetchall()
-
-        ## If search result is empty
-        if not results:
-            return jsonify({"message": "No anime found."}), 200
-        
-        return jsonify(results), 200
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-    
-    finally:
-        cursor.close()
-        conn.close()
 

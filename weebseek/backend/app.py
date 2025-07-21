@@ -2,9 +2,12 @@ from flask import Flask
 from flask_cors import CORS
 from routes.auth_routes import auth_bp
 from routes.anime_routes import anime_bp
+from routes.user_routes import user_bp
+from routes.watchlist_routes import watchlist_bp
+from routes.view_routes import view_bp
 from db.connection import get_db_connection
 from utils.sql_utils import read_commands_from_file
-from constants import REQUIRED_TABLES, CREATE_VIEW_FPATH
+from constants import REQUIRED_TABLES, CREATE_VIEW_FPATH, CREATE_TRIGGER_FPATH
 from constants import INIT_SAMPLE_DB_FPATH, LOAD_SAMPLE_DATA_FPATH
 from constants import INIT_PRODUCTION_DB_FPATH, LOAD_PRODUCTION_DATA_FPATH
 
@@ -96,11 +99,50 @@ def create_views():
         cursor.close()
         conn.close()
 
+def create_triggers():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    try:
+        with open(CREATE_TRIGGER_FPATH, 'r') as f:
+            full_sql = f.read()
+
+        # Extract and run all DROP statements
+        drop_parts = full_sql.split("DELIMITER $$")[0].strip()
+        drop_statements = [stmt.strip() for stmt in drop_parts.split(";") if stmt.strip()]
+        for stmt in drop_statements:
+            cursor.execute(stmt)
+
+        # Handle the trigger blocks
+        trigger_blocks = full_sql.split("DELIMITER $$")[1:]  # Skip the drop part
+        for block in trigger_blocks:
+            stmt = block.replace("DELIMITER ;", "").strip().rstrip("$$").strip()
+            if stmt:
+                cursor.execute(stmt)
+
+        conn.commit()
+        print("Triggers created successfully.")
+
+    except Exception as e:
+        print("Error creating triggers:", e)
+        try:
+            conn.rollback()
+        except:
+            print("Rollback failed due to sync error.")
+
+    finally:
+        cursor.close()
+        conn.close()
+
 init_database()
 load_data()
 create_views()
+create_triggers()
 app.register_blueprint(anime_bp)
 app.register_blueprint(auth_bp)
+app.register_blueprint(user_bp)
+app.register_blueprint(watchlist_bp)
+app.register_blueprint(view_bp)
 
 if __name__ == "__main__":
     app.run(port=5050, debug=True)

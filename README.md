@@ -65,6 +65,7 @@ To check if you have turned on the permission to load the CSV file in MySQL:
 ### Set Up The Dataset
 To create and load the sample database, see below section to run the backend.
 
+
 ### Run The Application
 You need two terminals, one for frontend and one for backend, and keep them running at the same time.
 - To Start The Frontend
@@ -93,21 +94,35 @@ You need two terminals, one for frontend and one for backend, and keep them runn
     python3 app.py
     ```
 
-### Currently supported Features
-- Sort animes by rating or aired date
-- To do:
-  - Filter animes by name, genres or type
-  - Create accounts and log in
-  - Create watchlists
+### Currently Supported Features
+- Filter animes by name, genres or type (/weebseek/backend/routes/anime_routes.py)
+- Sort animes by rating or aired date (/weebseek/backend/routes/anime_routes.py)
+- Search anime by name (/weebseek/backend/routes/anime_routes.py)
+- Create accounts, log in and log out (/weebseek/backend/routes/auth_routes.py)
+- Create watchlists (/weebseek/backend/routes/watchlist_routes.py)
+
+- Anime recommendation section for users based on their watchlist (/weebseek/backend/routes/user_routes.py)
+- User rate anime and reflect on the overall score of the anime (/weebseek/backend/routes/rating_routes.py)
+- User follow/unfollow and disable user to self follow (/weebseek/backend/routes/user_routes.py)
+- User recently viewed anime section (/weebseek/backend/routes/view_routes.py)
+- People you may know section based on mutual followers (/weebseek/backend/routes/user_routes.py)
+
+ 
+### Generate and Load the Production Dataset
+- The production data were downloaded from MyAnimeList Dataset on Kaggle. The data is then being transformed with clean_dataset.py into appropriate form for loading into the database. We match the attribute names, drop the duplicate records, trim whitespace on string columns, and ensure numeric and date types. We also enforce referential integrity to match with our table schema. The raw data contains 3 downloaded CSV files: anime_production.csv, user_production.csv, user_score_production.csv. The cleaned data contains 6 cleaned and normalized CSV files: anime.csv, genre.csv, animegenre.csv, user.csv, rating.csv, watchlist.csv.
+
+- The cleaned data is loaded into MySQL through sql/load_production_data.sql. Once the database schema is created with init_db.sql, we import the cleaned CSV files using LOAD DATA statements in load_production_data.sql.
+
+- Dataset source: https://www.kaggle.com/datasets/dbdmobile/myanimelist-dataset?resource=download&select=users-score-2023.csv
 
 ## C2 - SQL Code
-All SQL code for this project can be found in ```sql```
+All SQL code for the application can be found in ```sql```
 
 ## C3 - SQL Queries for Features (test queries over sample data)
-All SQL queries can be found in ```sample_sql```
+All SQL queries over sample data can be found in ```sample_sql```
 
 ## C4 - SQL Queries for Features (test queries over production data)
-(to do for milestone 2)
+All SQL queries over production data can be found in ```product_sql```
 
 ## C5 - Application Code
 All application code can be found in ```weebseek```

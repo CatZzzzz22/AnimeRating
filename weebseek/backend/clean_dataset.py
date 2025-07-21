@@ -9,12 +9,10 @@ os.makedirs(dir_path, exist_ok=True)
 
 ##### IMPORT ANIME DETAILS #####
 
-# Load the raw anime production CSV
 anime_path = '../../production_raw_data/anime_production.csv'
 raw_df = pd.read_csv(anime_path)
 raw_df.columns = raw_df.columns.str.strip()
 
-# Clean & transform for the Anime table
 anime_df = raw_df.rename(columns={
     'anime_id': 'aid',
     'Name':     'aname',
@@ -26,14 +24,13 @@ anime_df = raw_df.rename(columns={
     'ImageURL': 'imageURL'
 })[['aid','aname','score','synopsis','type','episodes','aired','imageURL']]
 
-# Drop duplicates by aid
 anime_df = anime_df.drop_duplicates(subset='aid')
 
-# Trim whitespace on string columns
 for col in ['aname', 'synopsis', 'type', 'imageURL']:
     anime_df[col] = anime_df[col].astype(str).str.strip()
 
-# Ensure numeric types
+anime_df = anime_df[anime_df['type'].astype(bool)]
+
 anime_df['score']    = pd.to_numeric(anime_df['score'], errors='coerce').fillna(0.0)
 anime_df['episodes'] = (
     pd.to_numeric(anime_df['episodes'], errors='coerce')
@@ -41,13 +38,31 @@ anime_df['episodes'] = (
       .astype(int)
 )
 
-# Keep the first occurrence of each name\zanime_df = anime_df.drop_duplicates(subset=['aname'], keep='first')
+anime_df = anime_df.drop_duplicates(subset=['aname'], keep='first')
 
-# Parse dates
-anime_df['aired'] = pd.to_datetime(anime_df['aired'], errors='coerce').dt.date
+# Parse 'aired' to datetime
+anime_df['aired'] = pd.to_datetime(anime_df['aired'], errors='coerce')
 
-# Add numRating and write the cleaned anime CSV
-anime_df['numRating'] = 3
+# Identify rows with missing dates
+missing_dates_mask = anime_df['aired'].isna()
+num_missing = missing_dates_mask.sum()
+
+# Generate random dates between 1990-01-01 and 2020-12-31
+start_date = datetime.date(1990, 1, 1)
+end_date   = datetime.date(2020, 12, 31)
+
+np.random.seed(42)  # for reproducibility
+random_ordinals = np.random.randint(start_date.toordinal(), end_date.toordinal(), size=num_missing)
+random_dates = [datetime.date.fromordinal(ordinal) for ordinal in random_ordinals]
+
+# Assign to missing 'aired' entries
+anime_df.loc[missing_dates_mask, 'aired'] = random_dates
+
+# Convert to date (if still datetime64)
+anime_df['aired'] = pd.to_datetime(anime_df['aired']).dt.date
+
+anime_df['numRating'] = np.where(anime_df['score'] == 0, 0, 3)
+
 anime_output = '../../production_cleaned_data/anime.csv'
 anime_df.to_csv(anime_output, index=False)
 print(f"Cleaned Anime CSV written to {anime_output} with {len(anime_df)} records.")
@@ -92,7 +107,6 @@ if 'Genres' in raw_df.columns and not genre_df.empty:
 
     mapping_df = anime_genre[['anime_id','gid']].rename(columns={'anime_id':'aid'})
 
-    # Enforce referential integrity
     mapping_df = mapping_df[
         mapping_df['aid'].isin(anime_df['aid']) &
         mapping_df['gid'].isin(genre_df['gid'])
@@ -110,7 +124,23 @@ users_input = '../../production_raw_data/user_production.csv'
 user_df = pd.read_csv(users_input)
 user_df.columns = user_df.columns.str.strip()
 
-users_df = user_df.rename(columns={
+# Load user IDs from score file to find active users
+scores_input = '../../production_raw_data/user_score_production.csv'
+score_users = pd.read_csv(scores_input, usecols=['user_id'])
+score_users.columns = score_users.columns.str.strip()
+score_user_ids = set(score_users['user_id'].dropna().astype(int))
+
+# Sample 10,000 random users
+sampled_users = user_df.sample(n=10000, random_state=42)
+
+# Union: include all sampled users and all users from score file
+combined_user_ids = set(sampled_users['Mal ID']).union(score_user_ids)
+
+# Filter the full user data by this union
+users_df = user_df[user_df['Mal ID'].isin(combined_user_ids)].copy()
+
+# Clean and transform
+users_df = users_df.rename(columns={
     'Mal ID':    'uid',
     'Username':  'username',
     'Gender':    'gender',
@@ -118,12 +148,9 @@ users_df = user_df.rename(columns={
     'Joined':    'joinedDate'
 })[['uid','username','gender','birthday','joinedDate']]
 
-users_df['joinedDate'] = (
-    pd.to_datetime(users_df['joinedDate'], errors='coerce')
-      .dt.date
-)
-
+users_df['joinedDate'] = pd.to_datetime(users_df['joinedDate'], errors='coerce').dt.date
 users_df['birthday'] = pd.to_datetime(users_df['birthday'], errors='coerce').dt.date
+
 today = datetime.date.today()
 users_df['age'] = users_df['birthday'].apply(
     lambda bd: today.year - bd.year - ((today.month, today.day) < (bd.month, bd.day))
@@ -148,7 +175,6 @@ print(f"Cleaned Users CSV written to {users_output} with {len(users_df)} records
 
 ##### IMPORT & CLEAN USER–SCORE DATA #####
 
-scores_input = '../../production_raw_data/user_score_production.csv'
 scores_df = pd.read_csv(scores_input)
 scores_df.columns = scores_df.columns.str.strip()
 
@@ -156,12 +182,19 @@ scores_df['uid'] = scores_df['user_id'].astype('category').cat.codes + 1
 scores_df['aid'] = scores_df['anime_id'].astype('category').cat.codes + 1
 
 start = pd.to_datetime('2000-01-01')
-scores_df['ratedDate'] = [start + pd.Timedelta(days=i) for i in range(len(scores_df))]
+end = pd.to_datetime('2025-01-01')
+
+# Generate the dates
+generated_dates = [start + pd.Timedelta(days=i) for i in range(len(scores_df))]
+
+# Cap the dates at 2025-01-01
+scores_df['ratedDate'] = [min(date, end) for date in generated_dates]
+
+# Assign score
 scores_df['score'] = scores_df['rating'].astype(float)
 
 user_scores_df = scores_df[['uid', 'aid', 'ratedDate', 'score']]
 
-# Enforce referential integrity
 user_scores_df = user_scores_df[
     user_scores_df['aid'].isin(anime_df['aid']) &
     user_scores_df['uid'].isin(users_df['uid'])
@@ -173,20 +206,14 @@ print(f"Cleaned User Scores CSV written to {scores_output} with {len(user_scores
 
 ##### GENERATE WATCH LIST #####
 
-scores_input = '../../production_raw_data/user_score_production.csv'
 scores_df = pd.read_csv(scores_input)
 scores_df.columns = scores_df.columns.str.strip()
 
 scores_df['uid'] = scores_df['user_id'].astype('category').cat.codes + 1
 scores_df['aid'] = scores_df['anime_id'].astype('category').cat.codes + 1
 
-watchlist_df = (
-    scores_df[['uid', 'aid']]
-    .drop_duplicates()
-    .reset_index(drop=True)
-)
+watchlist_df = scores_df[['uid', 'aid']].drop_duplicates().reset_index(drop=True)
 
-# Enforce referential integrity
 watchlist_df = watchlist_df[
     watchlist_df['aid'].isin(anime_df['aid']) &
     watchlist_df['uid'].isin(users_df['uid'])
