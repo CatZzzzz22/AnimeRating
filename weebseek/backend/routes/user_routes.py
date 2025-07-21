@@ -92,8 +92,6 @@ def user_recent_viewed():
 @user_bp.route("/api/user/recommendation/anime", methods=["GET"])
 def recommend_anime():
     uid = session["user_id"]
-    if not uid:
-        return jsonify({"error": "Missing user ID."}), 400
 
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
