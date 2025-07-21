@@ -5,7 +5,7 @@ user_bp = Blueprint("user", __name__)
 
 ####################### User's Page ##########################
 # Include user's profile, watchlist, recently viewed history and anime recommendation
-# User profile information
+# Current user profile information
 @user_bp.route("/api/user/profile", methods=["GET"])
 def user_profile():
     conn = get_db_connection()
@@ -32,7 +32,36 @@ def user_profile():
         cursor.close()
         conn.close()
 
-# Get the watchlist of user :uid
+# Other users' profile
+@user_bp.route("/api/user/profile", methods=["GET"])
+def user_profile():
+    uid = request.args.get("uid")
+
+    if not uid or not uid.isdigit():
+        return jsonify({"error": "Invalid or missing UID"}), 400
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    try:
+        query = "SELECT * FROM User WHERE uid = %s"
+        cursor.execute(query, (uid,))
+        profile = cursor.fetchone()
+        
+        if not profile:
+            return jsonify({"error": "User not found."}), 404
+        
+        profile.pop("password", None)
+        return jsonify(profile), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+    finally:
+        cursor.close()
+        conn.close()
+
+# Get the watchlist of current user
 @user_bp.route("/api/user/watchlist", methods=["GET"])
 def user_watchlist():
     uid = session["user_id"]
@@ -273,29 +302,46 @@ def recursive_recommendations():
     cursor = conn.cursor(dictionary=True)
 
     try:
-        query = """
-            WITH RECURSIVE FollowGraph AS (
-              SELECT followeeUid, 1 AS level
-              FROM UserFollow
-              WHERE followerUid = %s
+        # Check if user has followed anyone
+        cursor.execute("SELECT 1 FROM UserFollow WHERE followerUid = %s LIMIT 1", (uid,))
+        has_followed = cursor.fetchone()
 
-              UNION
+        if has_followed:
+            # Recursive recommendations from follow graph
+            query = """
+                WITH RECURSIVE FollowGraph AS (
+                  SELECT followeeUid, 1 AS level
+                  FROM UserFollow
+                  WHERE followerUid = %s
 
-              SELECT uf.followeeUid, fg.level + 1
-              FROM UserFollow uf
-              JOIN FollowGraph fg ON uf.followerUid = fg.followeeUid
-              WHERE fg.level < 4
-            )
-            SELECT DISTINCT u.uid, u.username, u.uname, u.location
-            FROM FollowGraph fg
-            JOIN User u ON u.uid = fg.followeeUid
-            WHERE u.uid != %s
-              AND u.uid NOT IN (
-                SELECT followeeUid FROM UserFollow WHERE followerUid = %s
-              )
-            LIMIT 10;
-        """
-        cursor.execute(query, (uid, uid, uid))
+                  UNION
+
+                  SELECT uf.followeeUid, fg.level + 1
+                  FROM UserFollow uf
+                  JOIN FollowGraph fg ON uf.followerUid = fg.followeeUid
+                  WHERE fg.level < 4
+                )
+                SELECT DISTINCT u.uid, u.username, u.uname, u.gender, u.age, u.location, u.joinedDate
+                FROM FollowGraph fg
+                JOIN User u ON u.uid = fg.followeeUid
+                WHERE u.uid != %s
+                  AND u.uid NOT IN (
+                    SELECT followeeUid FROM UserFollow WHERE followerUid = %s
+                  )
+                LIMIT 10;
+            """
+            cursor.execute(query, (uid, uid, uid))
+        else:
+            # Suggest random users if no follows yet
+            query = """
+                SELECT uid, username, uname, gender, age, location, joinedDate
+                FROM User
+                WHERE uid != %s
+                ORDER BY RAND()
+                LIMIT 10;
+            """
+            cursor.execute(query, (uid,))
+
         recommendations = cursor.fetchall()
         return jsonify(recommendations), 200
 
@@ -305,4 +351,3 @@ def recursive_recommendations():
     finally:
         cursor.close()
         conn.close()
-

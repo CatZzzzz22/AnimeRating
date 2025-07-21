@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 import datetime
-from datetime import timedelta
 import os
 
 #### CREATE A NEW DIRECTORY FOR CLEANED DATA ####
@@ -173,39 +172,6 @@ users_df = users_df[['uid','username','password','uname','gender','age','locatio
 users_output = '../../production_cleaned_data/user.csv'
 users_df.to_csv(users_output, index=False)
 print(f"Cleaned Users CSV written to {users_output} with {len(users_df)} records.")
-
-
-##### IMPORT USER-FOLLOWER DATA #####
-
-# Generate ~200 user follow relationships
-user_ids = users_df['uid'].tolist()
-follow_pairs = set()
-while len(follow_pairs) < 200:
-    follower, followee = np.random.choice(user_ids, 2, replace=False)
-    if follower != followee:
-        follow_pairs.add((follower, followee))
-
-userfollow_df = pd.DataFrame(follow_pairs, columns=['followerUid', 'followeeUid'])
-userfollow_df.to_csv('../../production_cleaned_data/userfollow.csv', index=False)
-print("Generated userfollow.csv with", len(userfollow_df), "rows.")
-
-
-##### IMPORT VIEW-HISTORY DATA #####
-
-# Generate ~200 view history entries
-anime_ids = anime_df['aid'].tolist()
-view_data = set()
-while len(view_data) < 200:
-    uid = np.random.choice(user_ids)
-    aid = np.random.choice(anime_ids)
-    date = datetime.date(2010, 1, 1) + timedelta(days=np.random.randint(0, 5475))
-    view_data.add((uid, aid, date))
-
-view_df = pd.DataFrame(view_data, columns=['uid', 'aid', 'viewed_date'])
-view_df.to_csv('../../production_cleaned_data/viewhistory.csv', index=False)
-print("Generated viewhistory.csv with", len(view_df), "rows.")
-
-
 
 ##### IMPORT & CLEAN USER–SCORE DATA #####
 
