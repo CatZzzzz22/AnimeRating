@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { apiFetch } from '../helpers';
 import type { AnimeType } from '../types';
 
@@ -12,6 +12,7 @@ import {
   Rating,
   Button,
 } from '@mui/material';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 interface Props {
   watchlist: Set<number>;
@@ -23,6 +24,7 @@ interface Props {
 
 function AnimePage({ watchlist, toggleWatchlist, ratings, rateAnime, isLoggedIn }: Props) {
   const { aid } = useParams();
+  const navigate = useNavigate();
   const [anime, setAnime] = useState<AnimeType | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -40,7 +42,17 @@ function AnimePage({ watchlist, toggleWatchlist, ratings, rateAnime, isLoggedIn 
 
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>
-      <Typography variant="h4" gutterBottom>{anime.aname}</Typography>
+      <Button
+        startIcon={<ArrowBackIcon />}
+        onClick={() => navigate(-1)}
+        sx={{ mb: 2 }}
+      >
+        Back
+      </Button>
+
+      <Typography variant="h4" gutterBottom>
+        {anime.aname}
+      </Typography>
 
       <Box display="flex" gap={3} mb={3}>
         <img
