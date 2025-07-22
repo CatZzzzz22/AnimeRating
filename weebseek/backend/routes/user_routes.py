@@ -189,12 +189,12 @@ def follow_user():
         cursor.close()
         conn.close()
 
-# Unfollow user with :uid
-@user_bp.route("/api/user/<int:uid>/unfollow", methods=["POST"])
-def unfollow_user(uid):
+# Unfollow user with given uid
+@user_bp.route("/api/user/unfollow", methods=["POST"])
+def unfollow_user():
     data = request.get_json()
     followerUid = session.get("user_id")    
-    followeeUid = uid
+    followeeUid = data.get("followeeUid")
 
     if not followerUid or not followeeUid:
         return jsonify({"error": "Missing follower or followee UID."}), 400
@@ -211,7 +211,7 @@ def unfollow_user(uid):
             WHERE followerUid = %s AND followeeUid = %s
         """, (followerUid, followeeUid))
         if cursor.fetchone() is None:
-            return jsonify({"message": "You are not following this user."}), 404
+            return jsonify({"error": "You are not following this user."}), 404
 
         # Delete follow record
         cursor.execute("""
