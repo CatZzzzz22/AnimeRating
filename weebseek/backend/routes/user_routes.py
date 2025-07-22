@@ -35,9 +35,6 @@ def user_profile():
 # Other users' profile
 @user_bp.route("/api/user/profile/<int:uid>", methods=["GET"])
 def other_user_profile(uid):
-    if not uid or not uid.isdigit():
-        return jsonify({"error": "Invalid or missing UID"}), 400
-
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
@@ -68,8 +65,31 @@ def user_watchlist():
     cursor = conn.cursor(dictionary=True)
 
     try:
+        query = "SELECT * FROM Watchlist_anime WHERE uid = %s"
+        cursor.execute(query, (uid,))
+        watchlist = cursor.fetchall()
+
+        if not watchlist:
+            return jsonify({"message": f"User {uid} has no anime in their watchlist."}), 200
+
+        return jsonify(watchlist), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+    finally:
+        cursor.close()
+        conn.close()
+
+# Get the watchlist of other users given uid
+@user_bp.route("/api/user/<int:uid>/watchlist", methods=["GET"])
+def other_user_watchlist(uid):
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    try:
         # Check if uid exists
-        cursor.execute("SELECT uid FROM User WHERE uid = %s", uid)
+        cursor.execute("SELECT uid FROM User WHERE uid = %s", (uid,))
         if cursor.fetchone() is None:
             return jsonify({"error": "User ID does not exist."}), 404
 
@@ -88,7 +108,6 @@ def user_watchlist():
     finally:
         cursor.close()
         conn.close()
-
 
 # Get current user's recently viewed anime
 @user_bp.route("/api/user/recent-viewed", methods=["GET"])
@@ -158,8 +177,8 @@ def recommend_anime():
 @user_bp.route("/api/user/follow", methods=["POST"])
 def follow_user():
     data = request.get_json()
-    followeeUid = data.get("followeeUid")
     followerUid = session.get("user_id")
+    followeeUid = data.get("followeeUid")
     
     if not followerUid or not followeeUid:
         return jsonify({"error": "Missing follower or followee UID."}), 400
@@ -171,7 +190,7 @@ def follow_user():
 
     try:
         # Check if followee exists
-        cursor.execute("SELECT uid FROM User WHERE uid = %s", followeeUid)
+        cursor.execute("SELECT uid FROM User WHERE uid = %s", (followeeUid,))
         if cursor.fetchone() is None:
             return jsonify({"error": "Followee does not exist."}), 404
 
@@ -192,12 +211,12 @@ def follow_user():
         cursor.close()
         conn.close()
 
-# Unfollow user with :uid
-@user_bp.route("/api/user/<int:uid>/unfollow", methods=["POST"])
-def unfollow_user(uid):
+# Unfollow user with given uid
+@user_bp.route("/api/user/unfollow", methods=["POST"])
+def unfollow_user():
     data = request.get_json()
     followerUid = session.get("user_id")    
-    followeeUid = uid
+    followeeUid = data.get("followeeUid")
 
     if not followerUid or not followeeUid:
         return jsonify({"error": "Missing follower or followee UID."}), 400
@@ -214,7 +233,7 @@ def unfollow_user(uid):
             WHERE followerUid = %s AND followeeUid = %s
         """, (followerUid, followeeUid))
         if cursor.fetchone() is None:
-            return jsonify({"message": "You are not following this user."}), 404
+            return jsonify({"error": "You are not following this user."}), 404
 
         # Delete follow record
         cursor.execute("""
@@ -341,6 +360,17 @@ def recursive_recommendations():
             cursor.execute(query, (uid,))
 
         recommendations = cursor.fetchall()
+        # Fallback if no recommendations were returned
+        if not recommendations:
+            cursor.execute("""
+                SELECT uid, username, uname, gender, age, location, joinedDate
+                FROM User
+                WHERE uid != %s
+                ORDER BY RAND()
+                LIMIT 10;
+            """, (uid,))
+            recommendations = cursor.fetchall()
+
         return jsonify(recommendations), 200
 
     except Exception as e:
