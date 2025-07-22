@@ -5,7 +5,7 @@ import bcrypt
 
 auth_bp = Blueprint("auth", __name__)
 
-USE_BCRYPT = False
+USE_BCRYPT = True
 
 ## User registration
 @auth_bp.route("/api/auth/register", methods=["POST"])
