@@ -301,6 +301,7 @@ def get_following():
 
         for user in following:
             user.pop("password", None)
+            user["isFollowing"] = True
         return jsonify(following), 200
 
     except Exception as e:

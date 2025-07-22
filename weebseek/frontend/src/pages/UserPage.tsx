@@ -34,23 +34,45 @@ const UserPage = ({ isLoggedIn }: Props) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!isLoggedIn) return;
+  const loadAll = async () => {
+    setLoading(true);
+    try {
+      const [recentData, followersData, followingData, recommendData] =
+        await Promise.all([
+          apiFetch<AnimeType[]>('/api/user/recent-viewed'),
+          apiFetch<PublicUser[]>('/api/user/followers'),
+          apiFetch<PublicUser[]>('/api/user/following'),
+          apiFetch<PublicUser[]>('/api/user/recommendations/user'),
+        ]);
+      setRecent(Array.isArray(recentData) ? recentData : []);
+      setFollowers(followersData);
+      setFollowing(followingData);
+      setRecommend(recommendData);
+      setError(null);
+    } catch (e: any) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    Promise.all([
-      apiFetch<AnimeType[]>('/api/user/recent-viewed'),
-      apiFetch<PublicUser[]>('/api/user/followers'),
-      apiFetch<PublicUser[]>('/api/user/following'),
-      apiFetch<PublicUser[]>('/api/user/recommendations/user'),
-    ])
-      .then(([recentData, followersData, followingData, recommendData]) => {
-        setRecent(Array.isArray(recentData) ? recentData : []);
-        setFollowers(followersData);
-        setFollowing(followingData);
-        setRecommend(recommendData);
-      })
-      .catch((e) => setError(e.message))
-      .finally(() => setLoading(false));
+  const loadSocial = async () => {
+    try {
+      const [followersData, followingData, recommendData] = await Promise.all([
+        apiFetch<PublicUser[]>('/api/user/followers'),
+        apiFetch<PublicUser[]>('/api/user/following'),
+        apiFetch<PublicUser[]>('/api/user/recommendations/user'),
+      ]);
+      setFollowers(followersData);
+      setFollowing(followingData);
+      setRecommend(recommendData);
+    } catch (e: any) {
+      console.error('Failed to refresh social lists', e);
+    }
+  };
+
+  useEffect(() => {
+    if (isLoggedIn) loadAll();
   }, [isLoggedIn]);
 
   if (!isLoggedIn) {
@@ -137,13 +159,17 @@ const UserPage = ({ isLoggedIn }: Props) => {
                     size="small"
                     variant={u.isFollowing ? 'outlined' : 'contained'}
                     onClick={async () => {
-                      const route = u.isFollowing ? 'unfollow' : 'follow';
-                      await apiFetch(`/api/user/${u.uid}/${route}`, { method: 'POST' });
+                      await apiFetch(`/api/user/${u.isFollowing ? 'unfollow' : 'follow'}`, {
+                        method: 'POST',
+                        body: JSON.stringify({ followeeUid: u.uid }),
+                        headers: { 'Content-Type': 'application/json' },
+                      });
                       setRecommend((prev) =>
                         prev.map((user) =>
                           user.uid === u.uid ? { ...user, isFollowing: !user.isFollowing } : user
                         )
                       );
+                      loadSocial();
                     }}
                   >
                     {u.isFollowing ? 'Unfollow' : 'Follow'}
@@ -174,13 +200,17 @@ const UserPage = ({ isLoggedIn }: Props) => {
                       size="small"
                       variant={u.isFollowing ? 'outlined' : 'contained'}
                       onClick={async () => {
-                        const route = u.isFollowing ? 'unfollow' : 'follow';
-                        await apiFetch(`/api/user/${u.uid}/${route}`, { method: 'POST' });
+                        await apiFetch(`/api/user/${u.isFollowing ? 'unfollow' : 'follow'}`, {
+                          method: 'POST',
+                          body: JSON.stringify({ followeeUid: u.uid }),
+                          headers: { 'Content-Type': 'application/json' },
+                        });
                         setFollowers((prev) =>
                           prev.map((user) =>
                             user.uid === u.uid ? { ...user, isFollowing: !user.isFollowing } : user
                           )
                         );
+                        loadSocial();
                       }}
                     >
                       {u.isFollowing ? 'Unfollow' : 'Follow'}
@@ -212,13 +242,17 @@ const UserPage = ({ isLoggedIn }: Props) => {
                       size="small"
                       variant={u.isFollowing ? 'outlined' : 'contained'}
                       onClick={async () => {
-                        const route = u.isFollowing ? 'unfollow' : 'follow';
-                        await apiFetch(`/api/user/${u.uid}/${route}`, { method: 'POST' });
+                        await apiFetch(`/api/user/${u.isFollowing ? 'unfollow' : 'follow'}`, {
+                          method: 'POST',
+                          body: JSON.stringify({ followeeUid: u.uid }),
+                          headers: { 'Content-Type': 'application/json' },
+                        });
                         setFollowing((prev) =>
                           prev.map((user) =>
                             user.uid === u.uid ? { ...user, isFollowing: !user.isFollowing } : user
                           )
                         );
+                        loadSocial();
                       }}
                     >
                       {u.isFollowing ? 'Unfollow' : 'Follow'}
