@@ -338,6 +338,17 @@ def recursive_recommendations():
             cursor.execute(query, (uid,))
 
         recommendations = cursor.fetchall()
+        # Fallback if no recommendations were returned
+        if not recommendations:
+            cursor.execute("""
+                SELECT uid, username, uname, gender, age, location, joinedDate
+                FROM User
+                WHERE uid != %s
+                ORDER BY RAND()
+                LIMIT 10;
+            """, (uid,))
+            recommendations = cursor.fetchall()
+            
         return jsonify(recommendations), 200
 
     except Exception as e:
