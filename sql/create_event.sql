@@ -1,0 +1,13 @@
+SET GLOBAL event_scheduler = ON;
+
+DELIMITER $$
+
+CREATE EVENT IF NOT EXISTS minute_prune_view_history
+ON SCHEDULE EVERY 1 MINUTE
+STARTS CURRENT_TIMESTAMP
+DO
+BEGIN
+  CALL prune_view_history();
+END$$
+
+DELIMITER ;
