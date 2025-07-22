@@ -35,9 +35,6 @@ def user_profile():
 # Other users' profile
 @user_bp.route("/api/user/profile/<int:uid>", methods=["GET"])
 def other_user_profile(uid):
-    if not uid or not uid.isdigit():
-        return jsonify({"error": "Invalid or missing UID"}), 400
-
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
@@ -158,8 +155,8 @@ def recommend_anime():
 @user_bp.route("/api/user/follow", methods=["POST"])
 def follow_user():
     data = request.get_json()
-    followeeUid = data.get("followeeUid")
     followerUid = session.get("user_id")
+    followeeUid = data.get("followeeUid")
     
     if not followerUid or not followeeUid:
         return jsonify({"error": "Missing follower or followee UID."}), 400
@@ -171,7 +168,7 @@ def follow_user():
 
     try:
         # Check if followee exists
-        cursor.execute("SELECT uid FROM User WHERE uid = %s", followeeUid)
+        cursor.execute("SELECT uid FROM User WHERE uid = %s", (followeeUid,))
         if cursor.fetchone() is None:
             return jsonify({"error": "Followee does not exist."}), 404
 
