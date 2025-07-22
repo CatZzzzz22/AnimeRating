@@ -48,16 +48,16 @@ END$$
 
 DELIMITER ;
 
--- Rating of anime with aid 11 before the rating
+-- Rating of anime with aid 31 before the rating
 SELECT score
 FROM Anime
-WHERE aid = 11;
+WHERE aid = 31;
 
--- User with uid 2 rate anime with aid 11 with a rating of 8
-INSERT INTO Rating VALUES (2, 11, CURDATE(), 8);
+-- User with uid 2 rate anime with aid 31 with a rating of 0
+INSERT INTO Rating VALUES (2, 31, CURDATE(), 0);
 
--- Rating of anime with aid 11 after the rating
+-- Rating of anime with aid 31 after the rating
 SELECT score
 FROM Anime
-WHERE aid = 11;
+WHERE aid = 31;
  
