@@ -15,6 +15,17 @@ anime_path = '../../production_raw_data/anime_production.csv'
 raw_df = pd.read_csv(anime_path)
 raw_df.columns = raw_df.columns.str.strip()
 
+if 'Genres' in raw_df.columns:
+    def contains_hentai(genres):
+        return 'Hentai' in [g.strip() for g in str(genres).split(',')]
+
+    hentai_mask = raw_df['Genres'].apply(contains_hentai)
+    num_removed = hentai_mask.sum()
+    raw_df = raw_df[~hentai_mask]
+    print(f"Removed {num_removed} anime with inappropriate genre.")
+else:
+    print("'Genres' column not found; skipping filtering.")
+
 anime_df = raw_df.rename(columns={
     'anime_id': 'aid',
     'Name':     'aname',
@@ -85,7 +96,7 @@ if 'Genres' in raw_df.columns:
         'gid':  range(1, len(unique_genres) + 1),
         'gname': unique_genres
     })
-
+    
     genres_output = '../../production_cleaned_data/genre.csv'
     genre_df.to_csv(genres_output, index=False)
     print(f"Extracted {len(genre_df)} distinct genres to {genres_output}.")
