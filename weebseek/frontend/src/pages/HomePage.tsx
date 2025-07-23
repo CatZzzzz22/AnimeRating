@@ -129,7 +129,14 @@ function HomePage({ watchlist, toggleWatchlist, isLoggedIn, ratings, rateAnime }
           ) : (
             <Box display="flex" gap={2} overflow="auto">
               {recommended.map(anime => (
-                <Box key={anime.aid} textAlign="center" minWidth={120} onClick={() => navigate(`/anime/${anime.aid}`)}>
+                <Box key={anime.aid} textAlign="center" minWidth={120} onClick={async () => {
+                  await apiFetch("/api/user/view", {
+                    method: 'POST',
+                    body: JSON.stringify({ aid: anime.aid }),
+                    headers: { "Content-Type": "application/json" },
+                  });
+                  navigate(`/anime/${anime.aid}`)
+                }}>
                   <img
                     src={anime.imageURL}
                     alt={anime.aname}
