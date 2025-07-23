@@ -19,4 +19,3 @@ AND u.uid NOT IN (
   SELECT followeeUid FROM UserFollow WHERE followerUid = %s
 )
 LIMIT 5;
-
