@@ -11,7 +11,7 @@ BEGIN
             ROW_NUMBER() OVER (PARTITION BY uid ORDER BY viewed_date DESC) AS row_num
             FROM ViewHistory
         ) AS ranked
-        WHERE row_num > 5
+        WHERE row_num > 10
     );
 END$$
 
