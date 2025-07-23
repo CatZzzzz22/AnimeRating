@@ -24,6 +24,12 @@ const AuthModal: React.FC<Props> = ({ open, onClose }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
+
+  const [uname, setUname] = useState("");
+  const [gender, setGender] = useState("");
+  const [age, setAge] = useState("");
+  const [location, setLocation] = useState("");
+
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -39,12 +45,21 @@ const AuthModal: React.FC<Props> = ({ open, onClose }) => {
       if (mode === "login") {
         await login(username, password);
       } else {
-        await register(username, password);
+        await register(username, password, {
+          uname,
+          gender,
+          age: Number(age),
+          location,
+        });
       }
       onClose();
       setUsername("");
       setPassword("");
       setConfirm("");
+      setUname("");
+      setGender("");
+      setAge("");
+      setLocation("");
     } catch (e: any) {
       setError(e.message || "Unknown error");
     } finally {
@@ -89,14 +104,46 @@ const AuthModal: React.FC<Props> = ({ open, onClose }) => {
             disabled={loading}
           />
           {mode === "register" && (
-            <TextField
-              label="Confirm Password"
-              type="password"
-              value={confirm}
-              onChange={(e) => setConfirm(e.target.value)}
-              fullWidth
-              disabled={loading}
-            />
+            <>
+              <TextField
+                label="Confirm Password"
+                type="password"
+                value={confirm}
+                onChange={(e) => setConfirm(e.target.value)}
+                fullWidth
+                disabled={loading}
+              />
+              <TextField
+                label="Display Name"
+                value={uname}
+                onChange={(e) => setUname(e.target.value)}
+                fullWidth
+                disabled={loading}
+              />
+              <TextField
+                label="Gender"
+                value={gender}
+                onChange={(e) => setGender(e.target.value)}
+                fullWidth
+                disabled={loading}
+              />
+              <TextField
+                label="Age"
+                type="number"
+                inputProps={{ min: 0 }}
+                value={age}
+                onChange={(e) => setAge(e.target.value)}
+                fullWidth
+                disabled={loading}
+              />
+              <TextField
+                label="Location"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                fullWidth
+                disabled={loading}
+              />
+            </>
           )}
         </Box>
       </DialogContent>
@@ -112,7 +159,8 @@ const AuthModal: React.FC<Props> = ({ open, onClose }) => {
             loading ||
             !username ||
             !password ||
-            (mode === "register" && !confirm)
+            (mode === "register" &&
+              (!confirm || !uname || !gender || !age || !location))
           }
         >
           {mode === "login" ? "Login" : "Register"}
@@ -121,5 +169,6 @@ const AuthModal: React.FC<Props> = ({ open, onClose }) => {
     </Dialog>
   );
 };
+
 
 export default AuthModal;
