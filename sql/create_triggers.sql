@@ -1,28 +1,6 @@
-DROP TRIGGER IF EXISTS recently_viewed;
 DROP TRIGGER IF EXISTS prevent_self_follow;
 DROP TRIGGER IF EXISTS add_rating;
 DROP TRIGGER IF EXISTS update_rating;
-
-DELIMITER $$
--- Trigger to keep most 10 recent anime viewed records
-CREATE TRIGGER recently_viewed
-AFTER INSERT ON ViewHistory
-FOR EACH ROW
-BEGIN
-  DELETE FROM ViewHistory
-  WHERE uid = NEW.uid
-    AND (uid, aid) NOT IN (
-      SELECT uid, aid FROM (
-        SELECT uid, aid
-        FROM ViewHistory
-        WHERE uid = NEW.uid
-        ORDER BY viewed_date DESC
-        LIMIT 10
-      ) AS TopTen
-    );
-END$$
-
-DELIMITER ;
 
 DELIMITER $$
 -- -- Trigger to prevent user self follow

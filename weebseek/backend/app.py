@@ -8,7 +8,7 @@ from routes.view_routes import view_bp
 from routes.rating_routes import rating_bp
 from db.connection import get_db_connection
 from utils.sql_utils import read_commands_from_file
-from constants import REQUIRED_TABLES, CREATE_VIEW_FPATH, CREATE_TRIGGER_FPATH
+from constants import REQUIRED_TABLES, CREATE_VIEW_FPATH, CREATE_TRIGGER_FPATH, CREATE_EVENT_FPATH, CREATE_PROCEDURE_FPATH
 from constants import INIT_SAMPLE_DB_FPATH, LOAD_SAMPLE_DATA_FPATH
 from constants import INIT_PRODUCTION_DB_FPATH, LOAD_PRODUCTION_DATA_FPATH
 
@@ -135,10 +135,77 @@ def create_triggers():
         cursor.close()
         conn.close()
 
+def create_event():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    try:
+        with open(CREATE_EVENT_FPATH, 'r') as f:
+            full_sql = f.read()
+
+        # Split into parts using DELIMITER
+        parts = full_sql.split("DELIMITER $$")
+        drop_statements = [stmt.strip() for stmt in parts[0].split(";") if stmt.strip()]
+        event_block = parts[1].strip().replace("$$", "")
+
+        # Run DROP statements first
+        for stmt in drop_statements:
+            cursor.execute(stmt)
+
+        # Run the full event block
+        cursor.execute(event_block)
+
+        conn.commit()
+        print("Event created successfully.")
+
+    except Exception as e:
+        print("Error creating event:", e)
+        try:
+            conn.rollback()
+        except:
+            print("Rollback failed.")
+
+    finally:
+        cursor.close()
+        conn.close()
+
+def create_procedure():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    try:
+        with open(CREATE_PROCEDURE_FPATH, 'r') as f:
+            full_sql = f.read()
+
+        parts = full_sql.split("DELIMITER $$")
+        drop_statements = [stmt.strip() for stmt in parts[0].split(";") if stmt.strip()]
+        procedure_block = parts[1].strip().replace("$$", "")
+
+        for stmt in drop_statements:
+            cursor.execute(stmt)
+
+        cursor.execute(procedure_block)
+
+        conn.commit()
+        print("Procedure created successfully.")
+
+    except Exception as e:
+        print("Error creating procedure:", e)
+        try:
+            conn.rollback()
+        except:
+            print("Rollback failed.")
+
+    finally:
+        cursor.close()
+        conn.close()
+
 init_database()
 load_data()
 create_views()
 create_triggers()
+create_event()
+create_procedure()
 app.register_blueprint(anime_bp)
 app.register_blueprint(auth_bp)
 app.register_blueprint(user_bp)

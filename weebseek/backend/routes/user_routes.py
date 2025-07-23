@@ -118,7 +118,7 @@ def user_recent_viewed():
     cursor = conn.cursor(dictionary=True)
 
     try:
-        query = "SELECT * FROM Recent_viewed WHERE uid = %s ORDER BY viewed_date DESC LIMIT 10"
+        query = "SELECT * FROM Recent_viewed WHERE uid = %s ORDER BY viewed_date DESC LIMIT 5"
         cursor.execute(query, (uid,))
         history = cursor.fetchall()
 
@@ -346,7 +346,7 @@ def recursive_recommendations():
                   AND u.uid NOT IN (
                     SELECT followeeUid FROM UserFollow WHERE followerUid = %s
                   )
-                LIMIT 10;
+                LIMIT 5;
             """
             cursor.execute(query, (uid, uid, uid))
         else:
@@ -356,7 +356,7 @@ def recursive_recommendations():
                 FROM User
                 WHERE uid != %s
                 ORDER BY RAND()
-                LIMIT 10;
+                LIMIT 5;
             """
             cursor.execute(query, (uid,))
 
@@ -368,7 +368,7 @@ def recursive_recommendations():
                 FROM User
                 WHERE uid != %s
                 ORDER BY RAND()
-                LIMIT 10;
+                LIMIT 5;
             """, (uid,))
             recommendations = cursor.fetchall()
 

@@ -1,3 +1,5 @@
+DROP PROCEDURE IF EXISTS prune_view_history;
+
 DELIMITER $$
 
 CREATE PROCEDURE prune_view_history()
@@ -9,7 +11,7 @@ BEGIN
             ROW_NUMBER() OVER (PARTITION BY uid ORDER BY viewed_date DESC) AS row_num
             FROM ViewHistory
         ) AS ranked
-        WHERE row_num > 10
+        WHERE row_num > 5
     );
 END$$
 
