@@ -25,7 +25,7 @@ def get_rating():
         cursor.close()
         conn.close()
 
-# POST /api/rating - adds or updates rating for the user, body - { aid: 5, score: 9 }
+# Add or update rating for the anime from current user
 @rating_bp.route("/api/rating", methods=["POST"])
 def update_rating():
     uid = session["user_id"]

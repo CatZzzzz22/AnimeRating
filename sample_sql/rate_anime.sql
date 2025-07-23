@@ -28,7 +28,7 @@ BEGIN
             ratedDate = NEW.ratedDate
         WHERE uid = NEW.uid AND aid = NEW.aid;
 
-        -- recalc average score (numRating unchanged)
+        -- recalculate average score (numRating unchanged)
         UPDATE Anime
         SET score = ((cur_avg * cur_num) - old_score + NEW.score) / cur_num
         WHERE aid = NEW.aid;
