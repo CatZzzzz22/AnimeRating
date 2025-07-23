@@ -16,6 +16,10 @@ JOIN Anime_genre a ON w.aid = a.aid;
 
 -- A master view that joins user's most recently viewed anime and anime details
 CREATE OR REPLACE VIEW Recent_viewed AS
-SELECT v.uid, v.viewed_date, a.*
-FROM ViewHistory v
-JOIN Anime_genre a ON v.aid = a.aid;
+SELECT *
+FROM (
+    SELECT v.uid, v.viewed_date, a.*, ROW_NUMBER() OVER (PARTITION BY v.uid ORDER BY v.viewed_date DESC) AS rn
+    FROM ViewHistory v
+    JOIN Anime_genre a ON v.aid = a.aid
+) AS ranked
+WHERE rn <= 5;

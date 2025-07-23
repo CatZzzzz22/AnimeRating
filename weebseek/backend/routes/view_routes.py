@@ -6,14 +6,19 @@ view_bp = Blueprint("view", __name__)
 # Add or update viewed anime of current user
 @view_bp.route("/api/user/view", methods=["POST"])
 def update_view_history():
-    conn = get_db_connection()
-    cursor = conn.cursor(dictionary=True)
+    uid = session.get("user_id")
 
-    uid = session["user_id"]
+    if not uid:
+        return jsonify({"error": "User not logged in."}), 401
+
     data = request.get_json()
     aid = data.get("aid")
+
     if not aid:
         return jsonify({"error": "Missing anime ID."}), 400
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
 
     try:
         query = """
@@ -21,7 +26,7 @@ def update_view_history():
             VALUES (%s, %s, NOW())
             ON DUPLICATE KEY UPDATE viewed_date = NOW()
         """
-        cursor.execute(query, (uid, aid,))
+        cursor.execute(query, (uid, aid))
         conn.commit()
         return jsonify({"message": "View history updated."}), 200
 
