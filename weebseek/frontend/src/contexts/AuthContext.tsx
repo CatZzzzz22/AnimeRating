@@ -6,11 +6,18 @@ interface User {
   username: string;
 }
 
+interface RegisterDetails {
+  uname: string;
+  gender: string;
+  age: number;
+  location: string;
+}
+
 interface AuthContextValue {
   user: User | null;
   loading: boolean;
   login: (u: string, p: string) => Promise<void>;
-  register: (u: string, p: string) => Promise<void>;
+  register: (u: string, p: string, details: RegisterDetails) => Promise<void>;
   logout: () => Promise<void>;
   checkSession: () => Promise<void>;
 }
@@ -50,12 +57,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser({ user_id: body.user_id, username: body.username });
   };
 
-  const register = async (username: string, password: string) => {
+  const register = async (
+    username: string,
+    password: string,
+    { uname, gender, age, location }: RegisterDetails
+  ) => {
     await apiFetch('/api/auth/register', {
       method: 'POST',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password }),
+      body: JSON.stringify({
+        username,
+        password,
+        uname,
+        gender,
+        age,
+        location,
+      }),
     });
     await login(username, password);
   };

@@ -75,7 +75,9 @@ function App() {
     const updated = new Set(watchlist);
     try {
       if (watchlist.has(aid)) {
-        await apiFetch(`/api/watchlist/${aid}`, { method: 'DELETE' });
+        await apiFetch(`/api/watchlist?aid=${aid}`, {
+          method: 'DELETE',
+        });
         updated.delete(aid);
       } else {
         await apiFetch(`/api/watchlist`, {

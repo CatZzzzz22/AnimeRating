@@ -39,9 +39,9 @@ function HomePage({ watchlist, toggleWatchlist, isLoggedIn, ratings, rateAnime }
   const [selectedGenre, setSelectedGenre] = useState('');
   const [types, setTypes] = useState<string[]>([]);
   const [selectedType, setSelectedType] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const [animeList, setAnimeList] = useState<AnimeType[]>([]);
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_LOAD);
-
   const [recommended, setRecommended] = useState<AnimeType[]>([]);
   const [recLoading, setRecLoading] = useState(false);
   const [recError, setRecError] = useState<string | null>(null);
@@ -49,48 +49,16 @@ function HomePage({ watchlist, toggleWatchlist, isLoggedIn, ratings, rateAnime }
   const navigate = useNavigate();
   const loaderRef = useRef<HTMLDivElement | null>(null);
 
-  const loadGenres = async () => {
-    try {
-      const data = await apiFetch<GenreType[]>('/api/anime/genre');
-      setGenres(Array.isArray(data) ? data : []);
-    } catch (e) {
-      console.error('Could not load Genres', e);
-    }
-  };
-
-  const loadTypes = async () => {
-    try {
-      const data = await apiFetch<string[]>('/api/anime/type');
-      setTypes(Array.isArray(data) ? data : []);
-    } catch (e) {
-      console.error('Could not load Types', e);
-    }
-  };
-
-  const fetchAnime = async () => {
+  const loadAnimeList = async () => {
     setLoading(true);
     setError(null);
     try {
       let url = `/api/anime/query?sort_by=${sortBy}&order=${sortOrder}`;
       if (selectedGenre) url += `&genre=${encodeURIComponent(selectedGenre)}`;
       if (selectedType) url += `&type=${encodeURIComponent(selectedType)}`;
+      if (searchQuery) url += `&aname=${encodeURIComponent(searchQuery)}`;
 
       const data = await apiFetch<AnimeType[]>(url);
-      setAnimeList(Array.isArray(data) ? data : []);
-      setVisibleCount(ITEMS_PER_LOAD);
-    } catch (e: any) {
-      setError(e.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSearch = async (query: string) => {
-    if (!query) return fetchAnime();
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await apiFetch<AnimeType[]>(`/api/anime/query?aname=${encodeURIComponent(query)}`);
       setAnimeList(Array.isArray(data) ? data : []);
       setVisibleCount(ITEMS_PER_LOAD);
     } catch (e: any) {
@@ -130,16 +98,19 @@ function HomePage({ watchlist, toggleWatchlist, isLoggedIn, ratings, rateAnime }
   }, [handleObserver]);
 
   useEffect(() => {
-    loadGenres();
-    loadTypes();
-    if (isLoggedIn) {
-      fetchRecommended();
-    }
-  }, []);
+    loadAnimeList();
+  }, [sortBy, sortOrder, selectedGenre, selectedType, searchQuery]);
 
   useEffect(() => {
-    fetchAnime();
-  }, [sortBy, sortOrder, selectedGenre, selectedType]);
+    const init = async () => {
+      const genreData = await apiFetch<GenreType[]>('/api/anime/genre');
+      setGenres(Array.isArray(genreData) ? genreData : []);
+      const typeData = await apiFetch<string[]>('/api/anime/type');
+      setTypes(Array.isArray(typeData) ? typeData : []);
+      if (isLoggedIn) fetchRecommended();
+    };
+    init();
+  }, []);
 
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>
@@ -167,15 +138,7 @@ function HomePage({ watchlist, toggleWatchlist, isLoggedIn, ratings, rateAnime }
                   <Typography
                     variant="caption"
                     noWrap
-                    sx={{
-                      maxWidth: 100,
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap',
-                      display: 'block',
-                      mt: 0.5,
-                      mx: 'auto',
-                    }}
+                    sx={{ maxWidth: 100, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block', mt: 0.5, mx: 'auto' }}
                   >
                     {anime.aname}
                   </Typography>
@@ -210,7 +173,7 @@ function HomePage({ watchlist, toggleWatchlist, isLoggedIn, ratings, rateAnime }
       </Box>
 
       <Box mb={3}>
-        <SearchBar onSearch={handleSearch} />
+        <SearchBar onSearch={(query) => setSearchQuery(query)} />
       </Box>
 
       {loading ? (

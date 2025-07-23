@@ -12,7 +12,7 @@ const SearchBar = ({ onSearch }: Props) => {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     onSearch(query.trim());
-  }
+  };
 
   return (
     <Box component="form" onSubmit={handleSubmit} sx={{ width: "100%" }}>
@@ -34,7 +34,7 @@ const SearchBar = ({ onSearch }: Props) => {
         }}
       />
     </Box>
-  )
-}
+  );
+};
 
-export default SearchBar
+export default SearchBar;
