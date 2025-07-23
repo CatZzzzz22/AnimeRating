@@ -1,5 +1,7 @@
 SET GLOBAL event_scheduler = ON;
 
+DROP EVENT IF EXISTS minute_prune_view_history;
+
 DELIMITER $$
 
 CREATE EVENT IF NOT EXISTS minute_prune_view_history

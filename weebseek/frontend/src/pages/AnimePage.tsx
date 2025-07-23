@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { apiFetch } from '../helpers';
 import type { AnimeType } from '../types';
 
@@ -12,6 +12,7 @@ import {
   Rating,
   Button,
 } from '@mui/material';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 interface Props {
   watchlist: Set<number>;
@@ -23,24 +24,50 @@ interface Props {
 
 function AnimePage({ watchlist, toggleWatchlist, ratings, rateAnime, isLoggedIn }: Props) {
   const { aid } = useParams();
+  const navigate = useNavigate();
   const [anime, setAnime] = useState<AnimeType | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  const fetchAnime = () => {
     if (!aid) return;
+    setLoading(true);
     apiFetch<AnimeType>(`/api/anime/${aid}`)
-      .then(data => setAnime(data))
+      .then(data => {
+        setAnime(data);
+        setError(null);
+      })
       .catch(e => setError(e.message))
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchAnime();
   }, [aid]);
+
+  const handleRatingChange = (newValue: number | null) => {
+    if (anime) {
+      rateAnime(anime.aid, newValue);
+      setTimeout(fetchAnime, 250);
+    }
+  };
 
   if (loading) return <Box p={4}><CircularProgress /></Box>;
   if (error || !anime) return <Alert severity="error">{error ?? "Anime not found."}</Alert>;
 
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>
-      <Typography variant="h4" gutterBottom>{anime.aname}</Typography>
+      <Button
+        startIcon={<ArrowBackIcon />}
+        onClick={() => navigate(-1)}
+        sx={{ mb: 2 }}
+      >
+        Back
+      </Button>
+
+      <Typography variant="h4" gutterBottom>
+        {anime.aname}
+      </Typography>
 
       <Box display="flex" gap={3} mb={3}>
         <img
@@ -67,10 +94,10 @@ function AnimePage({ watchlist, toggleWatchlist, ratings, rateAnime, isLoggedIn 
             max={10}
             value={ratings.get(anime.aid) ?? null}
             precision={1}
-            onChange={(_, newValue) => rateAnime(anime.aid, newValue)}
+            onChange={(_, newValue) => handleRatingChange(newValue)}
             onContextMenu={(e) => {
               e.preventDefault();
-              rateAnime(anime.aid, null);
+              handleRatingChange(null);
             }}
           />
           <Box mt={2}>

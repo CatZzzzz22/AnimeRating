@@ -5,6 +5,7 @@ import {
   Button,
   Typography,
   CircularProgress,
+  Container,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 
@@ -74,7 +75,9 @@ function App() {
     const updated = new Set(watchlist);
     try {
       if (watchlist.has(aid)) {
-        await apiFetch(`/api/watchlist/${aid}`, { method: 'DELETE' });
+        await apiFetch(`/api/watchlist?aid=${aid}`, {
+          method: 'DELETE',
+        });
         updated.delete(aid);
       } else {
         await apiFetch(`/api/watchlist`, {
@@ -95,92 +98,96 @@ function App() {
   return (
     <Router>
       <AppBar position="static">
-        <Toolbar>
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>
-            Weebseek
-          </Typography>
-          {user && (
-            <Typography sx={{ ml: 10, mr: 2 }}>
-              Logged in as {user.username}
+        <Container maxWidth="lg">
+          <Toolbar>
+            <Typography variant="h6" sx={{ flexGrow: 1 }}>
+              Weebseek
             </Typography>
-          )}
-          <Button color="inherit" component={Link} to="/">
-            Home
-          </Button>
-          {user ? (
-            <>
-              <Button color="inherit" component={Link} to="/watchlist">
-                Watchlist
-              </Button>
-              <Button color="inherit" component={Link} to="/user">
-                Profile
-              </Button>
-              <Button color="inherit" onClick={logout}>
-                Logout
-              </Button>
-            </>
-          ) : (
-            <Button color="inherit" onClick={() => setAuthModalOpen(true)}>
-              Login / Register
+            {user && (
+              <Typography sx={{ ml: 10, mr: 2 }}>
+                Logged in as {user.username}
+              </Typography>
+            )}
+            <Button color="inherit" component={Link} to="/">
+              Home
             </Button>
-          )}
-        </Toolbar>
+            {user ? (
+              <>
+                <Button color="inherit" component={Link} to="/watchlist">
+                  Watchlist
+                </Button>
+                <Button color="inherit" component={Link} to="/user">
+                  Profile
+                </Button>
+                <Button color="inherit" onClick={logout}>
+                  Logout
+                </Button>
+              </>
+            ) : (
+              <Button color="inherit" onClick={() => setAuthModalOpen(true)}>
+                Login / Register
+              </Button>
+            )}
+          </Toolbar>
+        </Container>
       </AppBar>
 
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <HomePage
-              watchlist={watchlist}
-              toggleWatchlist={toggleWatchlist}
-              ratings={ratings}
-              rateAnime={rateAnime}
-              isLoggedIn={!!user}
-            />
-          }
-        />
-        <Route
-          path="/watchlist"
-          element={
-            <WatchlistPage
-              watchlist={watchlist}
-              toggleWatchlist={toggleWatchlist}
-              ratings={ratings}
-              rateAnime={rateAnime}
-              isLoggedIn={!!user}
-            />
-          }
-        />
-        <Route
-          path="/anime/:aid"
-          element={
-            <AnimePage
-              watchlist={watchlist}
-              toggleWatchlist={toggleWatchlist}
-              ratings={ratings}
-              rateAnime={rateAnime}
-              isLoggedIn={!!user}
-            />
-          }
-        />
-        <Route
-          path="/user"
-          element={<UserPage isLoggedIn={!!user} />}
-        />
-        <Route
-          path="/user/:uid"
-          element={
-            <UserProfilePage
-              isLoggedIn={!!user}
-              watchlist={watchlist}
-              toggleWatchlist={toggleWatchlist}
-              ratings={ratings}
-              rateAnime={rateAnime}
-            />
-          }
-        />
-      </Routes>
+      <Container maxWidth="lg">
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <HomePage
+                watchlist={watchlist}
+                toggleWatchlist={toggleWatchlist}
+                ratings={ratings}
+                rateAnime={rateAnime}
+                isLoggedIn={!!user}
+              />
+            }
+          />
+          <Route
+            path="/watchlist"
+            element={
+              <WatchlistPage
+                watchlist={watchlist}
+                toggleWatchlist={toggleWatchlist}
+                ratings={ratings}
+                rateAnime={rateAnime}
+                isLoggedIn={!!user}
+              />
+            }
+          />
+          <Route
+            path="/anime/:aid"
+            element={
+              <AnimePage
+                watchlist={watchlist}
+                toggleWatchlist={toggleWatchlist}
+                ratings={ratings}
+                rateAnime={rateAnime}
+                isLoggedIn={!!user}
+              />
+            }
+          />
+          <Route
+            path="/user"
+            element={<UserPage isLoggedIn={!!user} />}
+          />
+          <Route
+            path="/user/:uid"
+            element={
+              <UserProfilePage
+                isLoggedIn={!!user}
+                watchlist={watchlist}
+                toggleWatchlist={toggleWatchlist}
+                ratings={ratings}
+                rateAnime={rateAnime}
+              />
+            }
+          />
+        </Routes>
+      </Container>
 
       <AuthModal open={authModalOpen} onClose={() => setAuthModalOpen(false)} />
     </Router>

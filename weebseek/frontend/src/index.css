@@ -1,4 +1,7 @@
-body {
+html,
+body,
+#root {
+  width: 100%;
   margin: 0;
-  display: flex;
+  padding: 0;
 }

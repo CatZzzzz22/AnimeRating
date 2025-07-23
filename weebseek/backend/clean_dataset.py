@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import datetime
 from datetime import timedelta
+import bcrypt
 import os
 
 #### CREATE A NEW DIRECTORY FOR CLEANED DATA ####
@@ -158,8 +159,16 @@ users_df['age'] = users_df['birthday'].apply(
 )
 users_df['age'] = users_df['age'].astype('Int64')
 
-users_df['uname']    = users_df['username'].str.extract(r'([A-Za-z]+)')[0].str.title()
-users_df['password'] = users_df['username'] + 'pass123'
+# extracting uname
+users_df['uname'] = users_df['username'].str.extract(r'([A-Za-z]+)')[0].str.title()
+
+# Function to create salt and hash
+def hash_password_bcrypt(username):
+    password = (username + 'pass123').encode('utf-8')
+    hashed = bcrypt.hashpw(password, bcrypt.gensalt(rounds=6))
+    return hashed.decode('utf-8')  # store as string
+
+users_df['password'] = users_df['username'].apply(hash_password_bcrypt)
 
 locations = [
     'Toronto', 'London', 'New York', 'Paris',
@@ -204,7 +213,6 @@ while len(view_data) < 200:
 view_df = pd.DataFrame(view_data, columns=['uid', 'aid', 'viewed_date'])
 view_df.to_csv('../../production_cleaned_data/viewhistory.csv', index=False)
 print("Generated viewhistory.csv with", len(view_df), "rows.")
-
 
 
 ##### IMPORT & CLEAN USER–SCORE DATA #####

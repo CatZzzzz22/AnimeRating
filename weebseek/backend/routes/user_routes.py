@@ -5,7 +5,7 @@ user_bp = Blueprint("user", __name__)
 
 ####################### User's Page ##########################
 # Include user's profile, watchlist, recently viewed history and anime recommendation
-# User profile information
+# Current user profile information
 @user_bp.route("/api/user/profile", methods=["GET"])
 def user_profile():
     conn = get_db_connection()
@@ -32,7 +32,31 @@ def user_profile():
         cursor.close()
         conn.close()
 
-# Get the watchlist of user :uid
+# Other users' profile
+@user_bp.route("/api/user/profile/<int:uid>", methods=["GET"])
+def other_user_profile(uid):
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    try:
+        query = "SELECT * FROM User WHERE uid = %s"
+        cursor.execute(query, (uid,))
+        profile = cursor.fetchone()
+        
+        if not profile:
+            return jsonify({"error": "User not found."}), 404
+        
+        profile.pop("password", None)
+        return jsonify(profile), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+    finally:
+        cursor.close()
+        conn.close()
+
+# Get the watchlist of current user
 @user_bp.route("/api/user/watchlist", methods=["GET"])
 def user_watchlist():
     uid = session["user_id"]
@@ -41,8 +65,31 @@ def user_watchlist():
     cursor = conn.cursor(dictionary=True)
 
     try:
+        query = "SELECT * FROM Watchlist_anime WHERE uid = %s"
+        cursor.execute(query, (uid,))
+        watchlist = cursor.fetchall()
+
+        if not watchlist:
+            return jsonify({"message": f"User {uid} has no anime in their watchlist."}), 200
+
+        return jsonify(watchlist), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+    finally:
+        cursor.close()
+        conn.close()
+
+# Get the watchlist of other users given uid
+@user_bp.route("/api/user/<int:uid>/watchlist", methods=["GET"])
+def other_user_watchlist(uid):
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    try:
         # Check if uid exists
-        cursor.execute("SELECT uid FROM User WHERE uid = %s", uid)
+        cursor.execute("SELECT uid FROM User WHERE uid = %s", (uid,))
         if cursor.fetchone() is None:
             return jsonify({"error": "User ID does not exist."}), 404
 
@@ -62,7 +109,6 @@ def user_watchlist():
         cursor.close()
         conn.close()
 
-
 # Get current user's recently viewed anime
 @user_bp.route("/api/user/recent-viewed", methods=["GET"])
 def user_recent_viewed():
@@ -72,7 +118,7 @@ def user_recent_viewed():
     cursor = conn.cursor(dictionary=True)
 
     try:
-        query = "SELECT * FROM Recent_viewed WHERE uid = %s ORDER BY viewed_date DESC LIMIT 10"
+        query = "SELECT * FROM Recent_viewed WHERE uid = %s ORDER BY viewed_date DESC LIMIT 5"
         cursor.execute(query, (uid,))
         history = cursor.fetchall()
 
@@ -92,8 +138,6 @@ def user_recent_viewed():
 @user_bp.route("/api/user/recommendation/anime", methods=["GET"])
 def recommend_anime():
     uid = session["user_id"]
-    if not uid:
-        return jsonify({"error": "Missing user ID."}), 400
 
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
@@ -133,8 +177,8 @@ def recommend_anime():
 @user_bp.route("/api/user/follow", methods=["POST"])
 def follow_user():
     data = request.get_json()
-    followeeUid = data.get("followeeUid")
     followerUid = session.get("user_id")
+    followeeUid = data.get("followeeUid")
     
     if not followerUid or not followeeUid:
         return jsonify({"error": "Missing follower or followee UID."}), 400
@@ -146,7 +190,7 @@ def follow_user():
 
     try:
         # Check if followee exists
-        cursor.execute("SELECT uid FROM User WHERE uid = %s", followeeUid)
+        cursor.execute("SELECT uid FROM User WHERE uid = %s", (followeeUid,))
         if cursor.fetchone() is None:
             return jsonify({"error": "Followee does not exist."}), 404
 
@@ -167,12 +211,12 @@ def follow_user():
         cursor.close()
         conn.close()
 
-# Unfollow user with :uid
-@user_bp.route("/api/user/<int:uid>/unfollow", methods=["POST"])
-def unfollow_user(uid):
+# Unfollow user with given uid
+@user_bp.route("/api/user/unfollow", methods=["POST"])
+def unfollow_user():
     data = request.get_json()
     followerUid = session.get("user_id")    
-    followeeUid = uid
+    followeeUid = data.get("followeeUid")
 
     if not followerUid or not followeeUid:
         return jsonify({"error": "Missing follower or followee UID."}), 400
@@ -189,7 +233,7 @@ def unfollow_user(uid):
             WHERE followerUid = %s AND followeeUid = %s
         """, (followerUid, followeeUid))
         if cursor.fetchone() is None:
-            return jsonify({"message": "You are not following this user."}), 404
+            return jsonify({"error": "You are not following this user."}), 404
 
         # Delete follow record
         cursor.execute("""
@@ -257,6 +301,7 @@ def get_following():
 
         for user in following:
             user.pop("password", None)
+            user["isFollowing"] = True
         return jsonify(following), 200
 
     except Exception as e:
@@ -275,30 +320,58 @@ def recursive_recommendations():
     cursor = conn.cursor(dictionary=True)
 
     try:
-        query = """
-            WITH RECURSIVE FollowGraph AS (
-              SELECT followeeUid, 1 AS level
-              FROM UserFollow
-              WHERE followerUid = %s
+        # Check if user has followed anyone
+        cursor.execute("SELECT 1 FROM UserFollow WHERE followerUid = %s LIMIT 1", (uid,))
+        has_followed = cursor.fetchone()
 
-              UNION
+        if has_followed:
+            # Recursive recommendations from follow graph
+            query = """
+                WITH RECURSIVE FollowGraph AS (
+                  SELECT followeeUid, 1 AS level
+                  FROM UserFollow
+                  WHERE followerUid = %s
 
-              SELECT uf.followeeUid, fg.level + 1
-              FROM UserFollow uf
-              JOIN FollowGraph fg ON uf.followerUid = fg.followeeUid
-              WHERE fg.level < 4
-            )
-            SELECT DISTINCT u.uid, u.username, u.uname, u.location
-            FROM FollowGraph fg
-            JOIN User u ON u.uid = fg.followeeUid
-            WHERE u.uid != %s
-              AND u.uid NOT IN (
-                SELECT followeeUid FROM UserFollow WHERE followerUid = %s
-              )
-            LIMIT 10;
-        """
-        cursor.execute(query, (uid, uid, uid))
+                  UNION
+
+                  SELECT uf.followeeUid, fg.level + 1
+                  FROM UserFollow uf
+                  JOIN FollowGraph fg ON uf.followerUid = fg.followeeUid
+                  WHERE fg.level < 4
+                )
+                SELECT DISTINCT u.uid, u.username, u.uname, u.gender, u.age, u.location, u.joinedDate
+                FROM FollowGraph fg
+                JOIN User u ON u.uid = fg.followeeUid
+                WHERE u.uid != %s
+                  AND u.uid NOT IN (
+                    SELECT followeeUid FROM UserFollow WHERE followerUid = %s
+                  )
+                LIMIT 5;
+            """
+            cursor.execute(query, (uid, uid, uid))
+        else:
+            # Suggest random users if no follows yet
+            query = """
+                SELECT uid, username, uname, gender, age, location, joinedDate
+                FROM User
+                WHERE uid != %s
+                ORDER BY RAND()
+                LIMIT 5;
+            """
+            cursor.execute(query, (uid,))
+
         recommendations = cursor.fetchall()
+        # Fallback if no recommendations were returned
+        if not recommendations:
+            cursor.execute("""
+                SELECT uid, username, uname, gender, age, location, joinedDate
+                FROM User
+                WHERE uid != %s
+                ORDER BY RAND()
+                LIMIT 5;
+            """, (uid,))
+            recommendations = cursor.fetchall()
+
         return jsonify(recommendations), 200
 
     except Exception as e:
@@ -307,4 +380,3 @@ def recursive_recommendations():
     finally:
         cursor.close()
         conn.close()
-

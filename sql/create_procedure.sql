@@ -1,3 +1,5 @@
+DROP PROCEDURE IF EXISTS prune_view_history;
+
 DELIMITER $$
 
 CREATE PROCEDURE prune_view_history()
